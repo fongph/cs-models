@@ -1,0 +1,16 @@
+{
+    "name": "boomsers/cs-models",
+    "version": "0.1",
+    "type": "library",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "CS\\Models\\": "src/"
+        }
+    }
+}
