@@ -1,7 +1,6 @@
 <?php
 
 require 'vendor/autoload.php';
-require 'tests/TestHelper.php';
 
 date_default_timezone_set('UTC');
 

@@ -1,5 +1,7 @@
 <?php
 
+namespace CS\Models;
+
 use CS\Models\Site\SiteRecord,
     CS\Models\User\UserRecord,
     CS\Models\Order\OrderRecord,
@@ -105,6 +107,7 @@ class TestHelper
                 ->setUser(self::$user)
                 ->setStatus(OrderRecord::STATUS_CREATED)
                 ->setPaymentMethod(OrderRecord::PAYMENT_METHOD_FASTSPRING)
+                ->setReferenceNumber('referenceNumber')
                 ->save();
     }
 
