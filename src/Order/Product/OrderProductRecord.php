@@ -32,7 +32,7 @@ class OrderProductRecord extends AbstractRecord
     protected $productId;
     protected $count;
     protected $referenceNumber;
-    protected $status;
+    protected $status = self::STATUS_ADDED;
     protected $keys = array(
         'id' => 'id',
         'orderId' => 'order_id',
@@ -254,6 +254,15 @@ class OrderProductRecord extends AbstractRecord
         return true;
     }
 
+    public function loadReferenceNumber()
+    {
+        if ($this->getProduct() == null || $this->getOrder() == null) {
+            throw new ReferenceNumberLoadException("Unable to load reference number without order or product record!");
+        }
+        
+        $this->referenceNumber = $this->getProduct()->getReferenceCode($this->getOrder()->getPaymentMethod());
+    }
+    
     /**
      * 
      * @param int $id

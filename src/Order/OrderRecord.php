@@ -365,24 +365,6 @@ class OrderRecord extends AbstractRecord
         throw new OrderNotFoundException('Unable to load order record');
     }
 
-    public function getProductsIterator()
-    {
-        if ($this->isNew()) {
-            return new RecordsIterator();
-        }
-        
-        $data = array();
-        $records = $this->db->query("SELECT * FROM `orders_products` WHERE `order_id` = {$this->id}")->fetchAll();
-        foreach ($records as $value) {
-            $product = new Product\Record($this->db);
-            $product->loadFromArray($value);
-
-            array_push($data, $product);
-        }
-        
-        return new RecordsIterator($data);
-    }
-
     public static function getAllowedStatuses()
     {
         return self::$allowedStatuses;

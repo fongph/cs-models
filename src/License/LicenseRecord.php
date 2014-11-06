@@ -37,7 +37,9 @@ class LicenseRecord extends AbstractRecord
         'userId' => 'user_id',
         'status' => 'status',
         'product_type' => 'product_type',
-        'paymentMethod' => 'payment_method',
+        'activationDate' => 'activation_date',
+        'activationDate' => 'expiration_date',
+        'lifetime' => 'lifetime',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -285,7 +287,14 @@ class LicenseRecord extends AbstractRecord
     public function load($id)
     {
         $escapedId = $this->db->quote($id);
-        if (($data = $this->db->query("SELECT *, UNIX_TIMESTAMP(`created_at`) as `created_at`, UNIX_TIMESTAMP(`updated_at`) as `updated_at` FROM `licenses` WHERE `id` = {$escapedId} LIMIT 1")->fetch(PDO::FETCH_ASSOC)) != false) {
+        if (($data = $this->db->query("SELECT 
+                            *, 
+                            UNIX_TIMESTAMP(`activation_date`) as `activation_date`, 
+                            UNIX_TIMESTAMP(`expiration_date`) as `expiration_date`, 
+                            UNIX_TIMESTAMP(`lifetime`) as `lifetime`, 
+                            UNIX_TIMESTAMP(`created_at`) as `created_at`, 
+                            UNIX_TIMESTAMP(`updated_at`) as `updated_at` 
+                        FROM `licenses` WHERE `id` = {$escapedId} LIMIT 1")->fetch(PDO::FETCH_ASSOC)) != false) {
             return $this->loadFromArray($data);
         }
 
