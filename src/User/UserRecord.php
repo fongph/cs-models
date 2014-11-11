@@ -22,9 +22,27 @@ class UserRecord extends AbstractRecord
      */
     protected $site;
     protected $siteId;
+    protected $login;
+    protected $password;
+    protected $locale = 'en-GB';
+    protected $recordsPerPage = 10;
+    protected $emailConfirmed = 0;
+    protected $locked = 0;
+    protected $unlockHash;
+    protected $restoreHash;
+    protected $emailConfirmHash;
     protected $keys = array(
         'id' => 'id',
         'siteId' => 'site_id',
+        'login' => 'login',
+        'password' => 'password',
+        'locale' => 'locale',
+        'recordsPerPage' => 'records_per_page',
+        'emailConfirmed' => 'email_confirmed',
+        'locked' => 'locked',
+        'unlockHash' => 'unlock_hash',
+        'restoreHash' => 'restore_hash',
+        'emailConfirmHash' => 'email_confirm_hash',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -54,6 +72,114 @@ class UserRecord extends AbstractRecord
         return $this;
     }
 
+    public function setLogin($value)
+    {
+        $this->login = $value;
+
+        return $this;
+    }
+
+    public function getLogin()
+    {
+        return $this->login;
+    }
+
+    public function setPassword($value)
+    {
+        $this->password = $value;
+
+        return $this;
+    }
+
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    public function setLocale($value)
+    {
+        $this->locale = $value;
+
+        return $this;
+    }
+
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    public function setRecordsPerPage($value)
+    {
+        $this->recordsPerPage = $value;
+
+        return $this;
+    }
+
+    public function getRecordsPerPage()
+    {
+        return $this->recordsPerPage;
+    }
+
+    public function setEmailConfirmed($value = true)
+    {
+        $this->emailConfirmed = $this->boolToNum($value);
+
+        return $this;
+    }
+
+    public function getEmailConfirmed()
+    {
+        return $this->emailConfirmed;
+    }
+
+    public function setLocked($value = true)
+    {
+        $this->locked = $this->boolToNum($value);
+
+        return $this;
+    }
+
+    public function getLocked()
+    {
+        return $this->locked;
+    }
+
+    public function setUnlockHash($value)
+    {
+        $this->unlockHash = $value;
+
+        return $this;
+    }
+
+    public function getUnlockHash()
+    {
+        return $this->unlockHash;
+    }
+
+    public function setRestoreHash($value)
+    {
+        $this->restoreHash = $value;
+
+        return $this;
+    }
+
+    public function getRestoreHash()
+    {
+        return $this->restoreHash;
+    }
+
+    public function setEmailConfirmHash($value)
+    {
+        $this->emailConfirmHash = $value;
+
+        return $this;
+    }
+
+    public function getEmailConfirmHash()
+    {
+        return $this->emailConfirmHash;
+    }
+
     /**
      * 
      * @return SiteRecord
@@ -75,10 +201,19 @@ class UserRecord extends AbstractRecord
         return null;
     }
 
-    private function updateRecord($siteId)
+    private function updateRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash)
     {
         $rows = $this->db->exec("UPDATE `users` SET
                                         `site_id` = {$siteId},
+                                        `login` = {$login},
+                                        `password` = {$password},
+                                        `locale` = {$locale},
+                                        `records_per_page` = {$recordsPerPage},
+                                        `email_confirmed` = {$emailConfirmed},
+                                        `locked` = {$locked},
+                                        `unlock_hash` = {$unlockHash},
+                                        `restore_hash` = {$restoreHash},
+                                        `email_confirm_hash` = {$emailConfirmHash},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -86,9 +221,20 @@ class UserRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($siteId)
+    private function insertRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash)
     {
-        $this->db->exec("INSERT INTO `users` SET `site_id` = {$siteId}");
+        $this->db->exec("INSERT INTO `users` SET 
+                            `site_id` = {$siteId},
+                            `login` = {$login},
+                            `password` = {$password},
+                            `locale` = {$locale},
+                            `records_per_page` = {$recordsPerPage},
+                            `email_confirmed` = {$emailConfirmed},
+                            `locked` = {$locked},
+                            `unlock_hash` = {$unlockHash},
+                            `restore_hash` = {$restoreHash},
+                            `email_confirm_hash` = {$emailConfirmHash}
+                        ");
 
         return $this->db->lastInsertId();
     }
@@ -108,13 +254,22 @@ class UserRecord extends AbstractRecord
     public function save()
     {
         $this->check();
-        
+
         $siteId = $this->escape($this->siteId);
+        $login = $this->escape($this->login);
+        $password = $this->escape($this->password);
+        $locale = $this->escape($this->locale);
+        $recordsPerPage = $this->escape($this->recordsPerPage);
+        $emailConfirmed = $this->escape($this->emailConfirmed);
+        $locked = $this->escape($this->locked);
+        $unlockHash = $this->escape($this->unlockHash);
+        $restoreHash = $this->escape($this->restoreHash);
+        $emailConfirmHash = $this->escape($this->emailConfirmHash);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($siteId);
+            return $this->updateRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash);
         } else {
-            $this->id = $this->insertRecord($siteId);
+            $this->id = $this->insertRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash);
         }
     }
 
