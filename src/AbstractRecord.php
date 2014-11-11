@@ -74,9 +74,9 @@ abstract class AbstractRecord
         return $this;
     }
 
-    protected function boolToNum(bool $value)
+    protected function boolToNum($value)
     {
-        return $value ? 1 : 0;
+        return ($value > 0) ? 1 : 0;
     }
     
     protected function numToBool($value)
