@@ -237,7 +237,7 @@ class UserAuthLogRecord extends AbstractRecord
                                     `mobile` = {$mobile},
                                     `tablet` = {$tablet},
                                     `user_agent` = {$userAgent},
-                                    `full_info` = {$fullInfo},
+                                    `full_info` = {$fullInfo}
                                 ");
 
         return $this->db->lastInsertId();
