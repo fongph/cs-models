@@ -271,7 +271,7 @@ class UserAuthLogRecord extends AbstractRecord
     public function load($id)
     {
         $escapedId = $this->db->quote($id);
-        if (($data = $this->db->query("SELECT *, UNIX_TIMESTAMP(`created_at`) as `created_at`, UNIX_TIMESTAMP(`updated_at`) as `updated_at` FROM `orders` WHERE `id` = {$escapedId} LIMIT 1")->fetch(PDO::FETCH_ASSOC)) != false) {
+        if (($data = $this->db->query("SELECT *, UNIX_TIMESTAMP(`created_at`) as `created_at` FROM `full_info` WHERE `id` = {$escapedId} LIMIT 1")->fetch(PDO::FETCH_ASSOC)) != false) {
             return $this->loadFromArray($data);
         }
 
