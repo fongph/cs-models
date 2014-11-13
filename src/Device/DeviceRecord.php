@@ -14,7 +14,7 @@ use PDO,
  *
  * @author root
  */
-class OrderRecord extends AbstractRecord
+class DeviceRecord extends AbstractRecord
 {
 
     /**
@@ -35,27 +35,23 @@ class OrderRecord extends AbstractRecord
      * @var UserRecord
      */
     protected $user;
-    protected $siteId;
     protected $userId;
-    protected $status;
-    protected $paymentMethod;
-    protected $amount;
-    protected $hash;
-    protected $referenceNumber;
-    protected $gatewayStatus;
-    protected $gatewayData;
+    protected $name;
+    protected $uniqueId;
     protected $keys = array(
         'id' => 'id',
-        'siteId' => 'site_id',
         'userId' => 'user_id',
-        'status' => 'status',
-        'paymentMethod' => 'payment_method',
-        'amount' => 'amount',
-        'hash' => 'hash',
-        'referenceNumber' => 'reference_number',
+        'name' => 'name',
+        'uniqueId' => 'unique_id',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
+
+    /**
+     *
+     * @var ProductsIterator
+     */
+    protected $productsIterator;
 
     /**
      * List of allowed statuses
