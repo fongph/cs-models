@@ -34,4 +34,4 @@ try {
 
 $db->beginTransaction();
 
-TestHelper::create($db);
+\CS\Models\TestHelper::create($db);

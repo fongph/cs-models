@@ -5,6 +5,7 @@ namespace CS\Models;
 use CS\Models\Site\SiteRecord,
     CS\Models\User\UserRecord,
     CS\Models\Order\OrderRecord,
+    CS\Models\Device\DeviceRecord,
     CS\Models\Product\ProductRecord,
     CS\Models\Order\Product\OrderProductRecord,
     CS\Models\Limitation\LimitationRecord,
@@ -23,55 +24,61 @@ class TestHelper
      *
      * @var PDO 
      */
-    static $db;
+    public static $db;
 
     /**
      *
      * @var SiteRecord 
      */
-    static $site;
+    public static $site;
 
     /**
      *
      * @var UserRecord 
      */
-    static $user;
+    public static $user;
 
     /**
      *
      * @var OrderRecord 
      */
-    static $order;
+    public static $order;
 
     /**
      *
      * @var ProductRecord 
      */
-    static $product;
+    public static $product;
 
+    /**
+     *
+     * @var DeviceRecord 
+     */
+    public static $device;
+    
     /**
      *
      * @var OrderProductRecord
      */
-    static $orderProduct;
+    public static $orderProduct;
 
     /**
      *
      * @var type LimitationRecord
      */
-    static $limitation;
+    public static $limitation;
 
     /**
      *
      * @var OrderPaymentRecord
      */
-    static $orderPayment;
+    public static $orderPayment;
 
     /**
      *
      * @var OrderpaymentProductRecord
      */
-    static $orderPaymentProduct;
+    public static $orderPaymentProduct;
 
     public static function create($db)
     {
@@ -84,6 +91,7 @@ class TestHelper
         self::createOrderPayment();
         self::createOrderProduct();
         self::createOrderPaymentProduct();
+        self::createDevice();
     }
 
     private static function createSite()
@@ -150,6 +158,15 @@ class TestHelper
         self::$orderPaymentProduct = new OrderPaymentProductRecord(self::$db);
         self::$orderPaymentProduct->setOrderPayment(TestHelper::$orderPayment)
                 ->setOrderProduct(TestHelper::$orderProduct)
+                ->save();
+    }
+
+    private static function createDevice()
+    {
+        self::$device = new DeviceRecord(self::$db);
+        self::$device->setUser(self::$user)
+                ->setName('name')
+                ->setUniqueId('123123123')
                 ->save();
     }
 

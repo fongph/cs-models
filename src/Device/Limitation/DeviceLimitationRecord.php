@@ -1,19 +1,25 @@
 <?php
 
-namespace CS\Models\Limitation;
+namespace CS\Models\Device\Limitation;
 
 use PDO,
-    CS\Models\AbstractRecord;
+    CS\Models\AbstractRecord,
+    CS\Models\Device\DeviceRecord;
 
 /**
- * Description of LimitationRecord
+ * Description of DeviceLimitationRecord
  *
  * @author root
  */
-class LimitationRecord extends AbstractRecord
+class DeviceLimitationRecord extends AbstractRecord
 {
 
-    protected $name;
+    /**
+     *
+     * @var DeviceRecord
+     */
+    protected $device;
+    protected $deviceId;
     protected $sms = 0;
     protected $call = 0;
     protected $gps = 0;
@@ -33,8 +39,6 @@ class LimitationRecord extends AbstractRecord
     protected $emails = 0;
     protected $applications = 0;
     protected $keylogger = 0;
-    protected $lifetime = 0;
-    protected $recurrence = 0;
     protected $keys = array(
         'id' => 'id',
         'name' => 'name',
@@ -65,28 +69,16 @@ class LimitationRecord extends AbstractRecord
 
     const UNLIMITED_VALUE = 65535;
 
-    public function getRecurrence()
+    public function setDeviceId($id)
     {
-        return $this->recurrence;
-    }
-
-    public function setRecurrence($value)
-    {
-        $this->recurrence = $value;
+        $this->deviceId = $id;
 
         return $this;
     }
 
-    public function getName()
+    public function getDeviceId()
     {
-        return $this->name;
-    }
-
-    public function setName($value)
-    {
-        $this->name = $value;
-
-        return $this;
+        return $this->deviceId;
     }
 
     public function getSms()
@@ -317,10 +309,43 @@ class LimitationRecord extends AbstractRecord
         return $this;
     }
 
-    private function updateRecord($name, $lifetime, $recurrence, $limitations)
+    public function setDevice(DeviceRecord $value)
+    {
+        if ($value->isNew()) {
+            throw new RecordNotCreatedException("Record must be created!");
+        }
+
+        $this->deviceId = $value->getId();
+        $this->device = $value;
+
+        return $this;
+    }
+
+    /**
+     * 
+     * @return UserRecord
+     */
+    public function getUser()
+    {
+        if ($this->device instanceof DeviceRecord) {
+            return $this->device;
+        }
+
+        if (!$this->isNew() && $this->deviceId) {
+            $deviceRecord = new DeviceRecord($this->db);
+            $deviceRecord->load($this->deviceId);
+
+            $this->setDevice($deviceRecord);
+            return $this->device;
+        }
+
+        return null;
+    }
+
+    private function updateRecord($deviceId, $limitations)
     {
         $rows = $this->db->exec("UPDATE `limitations` SET
-                                        `name` = {$name},
+                                        `device_id` = {$deviceId},
                                         `sms` = {$limitations['sms']},
                                         `call` = {$limitations['call']},
                                         `gps` = {$limitations['gps']},
@@ -340,8 +365,6 @@ class LimitationRecord extends AbstractRecord
                                         `emails` = {$limitations['email']},
                                         `applications` = {$limitations['applications']},
                                         `keylogger` = {$limitations['keylogger']},
-                                        `lifetime` = {$lifetime},
-                                        `recurrence` = {$recurrence},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -349,10 +372,10 @@ class LimitationRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($name, $lifetime, $recurrence, $sms)
+    private function insertRecord($deviceId, $limitations)
     {
         $this->db->exec("INSERT INTO `limitations` SET
-                            `name` = {$name},
+                            `device_id` = {$deviceId},
                             `sms` = {$limitations['sms']},
                             `call` = {$limitations['call']},
                             `gps` = {$limitations['gps']},
@@ -371,9 +394,7 @@ class LimitationRecord extends AbstractRecord
                             `vk` = {$limitations['vk']},
                             `emails` = {$limitations['email']},
                             `applications` = {$limitations['applications']},
-                            `keylogger` = {$limitations['keylogger']},
-                            `lifetime` = {$lifetime},
-                            `recurrence` = {$recurrence}
+                            `keylogger` = {$limitations['keylogger']}
                         ");
 
         return $this->db->lastInsertId();
@@ -404,25 +425,47 @@ class LimitationRecord extends AbstractRecord
         );
     }
 
+    private function checkDevice()
+    {
+        if ($this->device instanceof DeviceRecord && $this->deviceId != $this->device->getId()) {
+            throw new RecordDifferencesException("Invalid params");
+        }
+    }
+
+    private function check()
+    {
+        $this->checkDevice();
+    }
+
     public function save()
     {
-        $name = $this->escape($this->name);
-        $lifetime = $this->escape($this->lifetime);
-        $recurrence = $this->escape($this->recurrence);
+        $this->check();
+
+        $deviceId = $this->escape($this->deviceId);
         $limitations = $this->escapeLimitations();
 
         if (!empty($this->id)) {
-            return $this->updateRecord($name, $lifetime, $recurrence, $limitations);
+            return $this->updateRecord($deviceId, $limitations);
         } else {
-            $this->id = $this->insertRecord($name, $lifetime, $recurrence, $limitations);
+            $this->id = $this->insertRecord($deviceId, $limitations);
         }
     }
 
     public function load($id)
     {
         $escapedId = $this->db->quote($id);
-        if (($data = $this->db->query("SELECT * FROM `limitations` WHERE `id` = {$escapedId} LIMIT 1")->fetch(PDO::FETCH_ASSOC)) == false) {
-            throw new LimitationNotFoundException('Unable to load limitation record');
+        if (($data = $this->db->query("SELECT * FROM `devices_limitations` WHERE `id` = {$escapedId} LIMIT 1")->fetch(PDO::FETCH_ASSOC)) == false) {
+            throw new DeviceLimitationNotFoundException('Unable to load limitation record');
+        }
+
+        return $this->loadFromArray($data);
+    }
+
+    public function loadByDeviceId($id)
+    {
+        $escapedId = $this->db->quote($id);
+        if (($data = $this->db->query("SELECT * FROM `devices_limitations` WHERE `device_id` = {$escapedId} LIMIT 1")->fetch(PDO::FETCH_ASSOC)) == false) {
+            throw new DeviceLimitationNotFoundException('Unable to load limitation record');
         }
 
         return $this->loadFromArray($data);

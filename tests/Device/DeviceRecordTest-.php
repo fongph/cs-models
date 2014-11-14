@@ -2,7 +2,7 @@
 
 use CS\Models\Site\SiteRecord,
     CS\Models\User\UserRecord,
-    CS\Models\Order\OrderRecord,
+    CS\Models\Device\DeviceRecord,
     CS\Models\Order\Product\OrderProductRecord,
     CS\Models\Order\OrderNotFoundException,
     CS\Models\RecordDifferencesException,
@@ -15,47 +15,26 @@ use CS\Models\Site\SiteRecord,
  *
  * @author root
  */
-class OrderRecordTest extends \PHPUnit_Framework_TestCase
+class DeviceRecordTest extends \PHPUnit_Framework_TestCase
 {
 
-    /**
-     *
-     * @var \PDO
-     */
-    static $db;
     static $createdId;
-    static $site;
     static $user;
 
     /**
      *
-     * @var OrderRecord
+     * @var DeviceRecord
      */
-    private $order;
-
-    public static function setUpBeforeClass()
-    {
-        global $db;
-        self::$db = $db;
-
-        self::$site = new SiteRecord(self::$db);
-        self::$site->setName('site.com')
-                ->save();
-
-        self::$user = new UserRecord(self::$db);
-        self::$user->setSite(self::$site)
-                ->save();
-    }
+    private $device;
 
     public function setUp()
     {
-        $this->order = new OrderRecord(self::$db);
+        $this->device = new DeviceRecord(TestHelper::$db);
     }
 
     public function testCreate()
     {
-        $this->order->setSite(self::$site)
-                ->setUser(self::$user)
+        $this->device->setUser(CS\Models\TestHelper::$user)
                 ->setStatus(OrderRecord::STATUS_CREATED)
                 ->setPaymentMethod(OrderRecord::PAYMENT_METHOD_FASTSPRING)
                 ->setAmount(5)

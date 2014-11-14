@@ -2,7 +2,8 @@
 
 namespace CS\Models\License;
 
-use CS\Models\AbstractRecord,
+use PDO,
+    CS\Models\AbstractRecord,
     CS\Models\Order\Product\OrderProductRecord,
     CS\Models\Product\ProductRecord,
     CS\Models\RecordNotCreatedException,
@@ -60,10 +61,10 @@ class LicenseRecord extends AbstractRecord
         if ($value->isNew()) {
             throw new RecordNotCreatedException("Record must be created!");
         }
-        
+
         $this->orderProductId = $value->getId();
         $this->productId = $value->getProductId();
-        $this->userId = $value->getOrder()->getUserId();        
+        $this->userId = $value->getOrder()->getUserId();
         $this->productType = $value->getProduct()->getType();
         $this->lifetime = $value->getProduct()->getLimitation()->getLifetime();
 
