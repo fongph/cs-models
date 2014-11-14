@@ -1,13 +1,11 @@
 <?php
 
-namespace CS\Models\Order;
+namespace CS\Models\Device;
 
 use PDO,
     CS\Models\AbstractRecord,
-    CS\Models\Site\SiteRecord,
     CS\Models\User\UserRecord,
-    CS\Models\RecordNotCreatedException,
-    CS\Models\RecordDifferencesException;
+    CS\Models\RecordNotCreatedException;
 
 /**
  * Description of OrderRecord
@@ -16,19 +14,6 @@ use PDO,
  */
 class DeviceRecord extends AbstractRecord
 {
-
-    /**
-     * Database connection
-     * 
-     * @var PDO
-     */
-    protected $db;
-
-    /**
-     *
-     * @var SiteRecord
-     */
-    protected $site;
 
     /**
      *
@@ -47,55 +32,6 @@ class DeviceRecord extends AbstractRecord
         'updatedAt' => 'updated_at'
     );
 
-    /**
-     *
-     * @var ProductsIterator
-     */
-    protected $productsIterator;
-
-    /**
-     * List of allowed statuses
-     * 
-     * @var array
-     */
-    protected static $allowedStatuses = array(self::STATUS_CREATED, self::STATUS_COMPLETED);
-
-    /**
-     * List of allowed payment methods
-     * 
-     * @var array
-     */
-    protected static $allowedPaymentMethods = array(self::PAYMENT_METHOD_BLUESNAP, self::PAYMENT_METHOD_FASTSPRING);
-
-    const STATUS_CREATED = 'created';
-    const STATUS_COMPLETED = 'completed';
-    const PAYMENT_METHOD_BLUESNAP = 'bluesnap';
-    const PAYMENT_METHOD_FASTSPRING = 'fastspring';
-
-    public function getHash()
-    {
-        return $this->hash;
-    }
-
-    private function generateHash()
-    {
-        $this->hash = substr(md5(self::class . microtime()), 0, 10);
-
-        return $this->hash;
-    }
-
-    public function setSiteId($id)
-    {
-        $this->siteId = $id;
-
-        return $this;
-    }
-
-    public function getSiteId()
-    {
-        return $this->siteId;
-    }
-
     public function setUserId($id)
     {
         $this->userId = $id;
@@ -108,89 +44,28 @@ class DeviceRecord extends AbstractRecord
         return $this->userId;
     }
 
-    public function setStatus($value)
+    public function setName($value)
     {
-        $this->status = $value;
+        $this->name = $value;
 
         return $this;
     }
 
-    public function getStatus()
+    public function getName()
     {
-        return $this->status;
+        return $this->name;
     }
 
-    public function setAmount($value)
+    public function setUniqueId($value)
     {
-        $this->amount = $value;
+        $this->uniqueId = $value;
 
         return $this;
     }
 
-    public function getAmount()
+    public function getUniqueId()
     {
-        return $this->amount;
-    }
-
-    public function setReferenceNumber($value)
-    {
-        $this->referenceNumber = $value;
-
-        return $this;
-    }
-
-    public function getReferenceNumber()
-    {
-        return $this->referenceNumber;
-    }
-
-    public function setPaymentMethod($value)
-    {
-        $this->paymentMethod = $value;
-
-        return $this;
-    }
-
-    public function getPaymentMethod()
-    {
-        return $this->paymentMethod;
-    }
-
-    public function setGatewayStatus($value)
-    {
-        $this->gatewayStatus = $value;
-
-        return $this;
-    }
-
-    public function getGatewayStatus()
-    {
-        return $this->gatewayStatus;
-    }
-
-    public function setGatewayData($value)
-    {
-        $this->gatewayData = $value;
-
-        return $this;
-    }
-
-    public function getGatewayData()
-    {
-        return $this->gatewayData;
-    }
-
-    public function setSite(SiteRecord $value)
-    {
-        if ($value->isNew()) {
-            throw new RecordNotCreatedException("Record must be created!");
-        }
-
-        $this->siteId = $value->getId();
-
-        $this->site = $value;
-
-        return $this;
+        return $this->uniqueId;
     }
 
     public function setUser(UserRecord $value)
@@ -227,48 +102,12 @@ class DeviceRecord extends AbstractRecord
         return null;
     }
 
-    /**
-     * 
-     * @return SiteRecord
-     */
-    public function getSite()
+    private function updateRecord($userId, $name, $uniqueId)
     {
-        if ($this->site instanceof SiteRecord) {
-            return $this->site;
-        }
-
-        if (!$this->isNew() && $this->siteId) {
-            $siteRecord = new SiteRecord($this->db);
-            $siteRecord->load($this->siteId);
-
-            $this->setSite($siteRecord);
-            return $this->site;
-        }
-
-        return null;
-    }
-
-    private function insertHistoryRecord($paymentMethod, $status, $gatewayStatus, $gatewayData)
-    {
-        $this->db->exec("INSERT INTO `orders_history` SET 
-                            `order_id` = {$this->id},
-                            `payment_method` = {$paymentMethod},
-                            `status` = {$status},
-                            `gateway_status` = {$gatewayStatus},
-                            `gateway_data` = {$gatewayData}
-                        ");
-    }
-
-    private function updateRecord($siteId, $userId, $status, $paymentMethod, $amount, $hash, $referenceNumber)
-    {
-        $rows = $this->db->exec("UPDATE `orders` SET
-                                        `site_id` = {$siteId},
+        $rows = $this->db->exec("UPDATE `devices` SET
                                         `user_id` = {$userId},
-                                        `status` = {$status},
-                                        `payment_method` = {$paymentMethod},
-                                        `amount` = {$amount},
-                                        `hash` = {$hash},
-                                        `reference_number` = {$referenceNumber},
+                                        `name` = {$name},
+                                        `unique_id` = {$uniqueId}
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -276,26 +115,15 @@ class DeviceRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($siteId, $userId, $status, $paymentMethod, $amount, $hash, $referenceNumber)
+    private function insertRecord($userId, $name, $uniqueId)
     {
-        $this->db->exec("INSERT INTO `orders` SET
-                                    `site_id` = {$siteId},
+        $this->db->exec("INSERT INTO `devices` SET
                                     `user_id` = {$userId},
-                                    `status` = {$status},
-                                    `payment_method` = {$paymentMethod},
-                                    `amount` = {$amount},
-                                    `hash` = {$hash},
-                                    `reference_number` = {$referenceNumber}
+                                    `name` = {$name},
+                                    `unique_id` = {$uniqueId}
                                 ");
 
         return $this->db->lastInsertId();
-    }
-
-    private function checkSite()
-    {
-        if ($this->site instanceof SiteRecord && $this->siteId != $this->site->getId()) {
-            throw new RecordDifferencesException("Invalid params");
-        }
     }
 
     private function checkUser()
@@ -307,39 +135,22 @@ class DeviceRecord extends AbstractRecord
     
     private function check()
     {
-        if (!in_array($this->paymentMethod, self::getAllowedPaymentMethods())) {
-            throw new InvalidPaymentMethodException("Invalid payment method value");
-        }
-
-        if (!in_array($this->status, self::getAllowedStatuses())) {
-            throw new InvalidStatusException("Invalid status value");
-        }
-        
-        $this->checkSite();
         $this->checkUser();
     }
-    
+
     public function save()
     {
         $this->check();
-        
-        $siteId = $this->escape($this->siteId);
+
         $userId = $this->escape($this->userId);
-        $status = $this->escape($this->status, self::STATUS_CREATED, true);
-        $paymentMethod = $this->escape($this->paymentMethod);
-        $amount = $this->escape($this->amount);
-        $hash = $this->escape($this->generateHash());
-        $referenceNumber = $this->escape($this->referenceNumber);
+        $name = $this->escape($this->name);
+        $uniqueId = $this->escape($this->uniqueId);
 
         if (!empty($this->id)) {
-            $this->updateRecord($siteId, $userId, $status, $paymentMethod, $amount, $hash, $referenceNumber);
-        } else {
-            $this->id = $this->insertRecord($siteId, $userId, $status, $paymentMethod, $amount, $hash, $referenceNumber);
+            return $this->updateRecord($userId, $name, $uniqueId);
         }
 
-        $gatewayStatus = $this->escape($this->gatewayStatus);
-        $gatewayData = $this->escape($this->gatewayData);
-        $this->insertHistoryRecord($paymentMethod, $status, $gatewayStatus, $gatewayData);
+        $this->id = $this->insertRecord($userId, $name, $uniqueId);
 
         return true;
     }
@@ -352,16 +163,6 @@ class DeviceRecord extends AbstractRecord
         }
 
         throw new OrderNotFoundException('Unable to load order record');
-    }
-
-    public static function getAllowedStatuses()
-    {
-        return self::$allowedStatuses;
-    }
-
-    public static function getAllowedPaymentMethods()
-    {
-        return self::$allowedPaymentMethods;
     }
 
 }
