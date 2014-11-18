@@ -306,9 +306,9 @@ class LicenseRecord extends AbstractRecord
         $orderProductId = $this->escape($this->orderProductId, 'NULL');
         $productType = $this->escape($this->productType);
         $status = $this->escape($this->status);
-        $activationDate = $this->escape($this->activationDate);
-        $expirationDate = $this->escape($this->expirationDate);
-        $lifetime = $this->escape($this->lifetime);
+        $activationDate = $this->escape($this->activationDate, 'NULL');
+        $expirationDate = $this->escape($this->expirationDate, 'NULL');
+        $lifetime = $this->escape($this->lifetime, 'NULL');
         $currency = $this->escape($this->currency);
         $amount = $this->escape($this->amount);
 
