@@ -227,7 +227,7 @@ class LicenseRecord extends AbstractRecord
 
     private function updateRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount)
     {
-        $rows = $this->db->exec("UPDATE `orders_products` SET
+        $rows = $this->db->exec("UPDATE `licenses` SET
                                         `user_id` = {$userId},
                                         `product_id` = {$productId},
                                         `device_id` = {$deviceId},
