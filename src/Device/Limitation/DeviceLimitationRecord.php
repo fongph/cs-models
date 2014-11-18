@@ -362,7 +362,7 @@ class DeviceLimitationRecord extends AbstractRecord
                                         `skype` = {$limitations['skype']},
                                         `facebook` = {$limitations['facebook']},
                                         `vk` = {$limitations['vk']},
-                                        `emails` = {$limitations['email']},
+                                        `emails` = {$limitations['emails']},
                                         `applications` = {$limitations['applications']},
                                         `keylogger` = {$limitations['keylogger']},
                                         `updated_at` = NOW()
@@ -392,7 +392,7 @@ class DeviceLimitationRecord extends AbstractRecord
                             `skype` = {$limitations['skype']},
                             `facebook` = {$limitations['facebook']},
                             `vk` = {$limitations['vk']},
-                            `emails` = {$limitations['email']},
+                            `emails` = {$limitations['emails']},
                             `applications` = {$limitations['applications']},
                             `keylogger` = {$limitations['keylogger']}
                         ");
