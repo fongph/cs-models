@@ -53,7 +53,7 @@ class ProductRecord extends AbstractRecord
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
-    protected static $allowedTypes = array('package', 'bundle', 'option');
+    protected static $allowedTypes = array(self::TYPE_PACKAGE, self::TYPE_BUNDLE, self::TYPE_OPTION);
 
     const TYPE_PACKAGE = 'package';
     const TYPE_BUNDLE = 'bundle';

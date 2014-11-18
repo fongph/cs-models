@@ -39,7 +39,7 @@ class LicenseRecord extends AbstractRecord
         'siteId' => 'site_id',
         'userId' => 'user_id',
         'status' => 'status',
-        'product_type' => 'product_type',
+        'productType' => 'product_type',
         'activationDate' => 'activation_date',
         'activationDate' => 'expiration_date',
         'lifetime' => 'lifetime',
@@ -288,7 +288,7 @@ class LicenseRecord extends AbstractRecord
         }
 
         if (!in_array($this->productType, ProductRecord::getAllowedTypes())) {
-            throw new InvalidTypeException("Invalid license type value!");
+            throw new InvalidTypeException("Invalid license product type value!");
         }
 
         $this->checkOrderProduct();
