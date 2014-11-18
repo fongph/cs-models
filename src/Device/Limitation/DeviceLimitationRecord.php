@@ -41,6 +41,7 @@ class DeviceLimitationRecord extends AbstractRecord
     protected $keylogger = 0;
     protected $keys = array(
         'id' => 'id',
+        'deviceId' => 'device_id',
         'name' => 'name',
         'sms' => 'sms',
         'call' => 'call',
