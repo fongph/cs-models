@@ -36,12 +36,14 @@ class LicenseRecord extends AbstractRecord
     protected $amount = 0;
     protected $keys = array(
         'id' => 'id',
-        'siteId' => 'site_id',
         'userId' => 'user_id',
-        'status' => 'status',
+        'orderProductId' => 'order_product_id',
+        'productId' => 'product_id',
+        'deviceId' => 'device_id',
         'productType' => 'product_type',
+        'status' => 'status',
         'activationDate' => 'activation_date',
-        'activationDate' => 'expiration_date',
+        'expirationDate' => 'expiration_date',
         'lifetime' => 'lifetime',
         'currency' => 'currency',
         'amount' => 'amount',
@@ -299,7 +301,7 @@ class LicenseRecord extends AbstractRecord
         $this->check();
 
         $userId = $this->escape($this->userId);
-        $productId = $this->escape($this->productId);
+        $productId = $this->escape($this->productId, 'NULL');
         $deviceId = $this->escape($this->deviceId, 'NULL');
         $orderProductId = $this->escape($this->orderProductId, 'NULL');
         $productType = $this->escape($this->productType);
