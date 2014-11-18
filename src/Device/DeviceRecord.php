@@ -23,11 +23,13 @@ class DeviceRecord extends AbstractRecord
     protected $userId;
     protected $name;
     protected $uniqueId;
+    protected $deleted = 0;
     protected $keys = array(
         'id' => 'id',
         'userId' => 'user_id',
         'name' => 'name',
         'uniqueId' => 'unique_id',
+        'deleted' => 'deleted',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -54,6 +56,18 @@ class DeviceRecord extends AbstractRecord
     public function getName()
     {
         return $this->name;
+    }
+    
+    public function setDeleted($value)
+    {
+        $this->deleted = $value;
+
+        return $this;
+    }
+
+    public function getDeleted()
+    {
+        return $this->deleted;
     }
 
     public function setUniqueId($value)
@@ -102,12 +116,13 @@ class DeviceRecord extends AbstractRecord
         return null;
     }
 
-    private function updateRecord($userId, $name, $uniqueId)
+    private function updateRecord($userId, $name, $uniqueId, $deleted)
     {
         $rows = $this->db->exec("UPDATE `devices` SET
                                         `user_id` = {$userId},
                                         `name` = {$name},
-                                        `unique_id` = {$uniqueId}
+                                        `unique_id` = {$uniqueId},
+                                        `deleted` = {$deleted}
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -115,12 +130,13 @@ class DeviceRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($userId, $name, $uniqueId)
+    private function insertRecord($userId, $name, $uniqueId, $deleted)
     {
         $this->db->exec("INSERT INTO `devices` SET
                                     `user_id` = {$userId},
                                     `name` = {$name},
-                                    `unique_id` = {$uniqueId}
+                                    `unique_id` = {$uniqueId},
+                                    `deleted` = {$deleted}
                                 ");
 
         return $this->db->lastInsertId();
@@ -145,16 +161,23 @@ class DeviceRecord extends AbstractRecord
         $userId = $this->escape($this->userId);
         $name = $this->escape($this->name);
         $uniqueId = $this->escape($this->uniqueId);
+        $deleted = $this->escape($this->deleted);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($userId, $name, $uniqueId);
+            return $this->updateRecord($userId, $name, $uniqueId, $deleted);
         }
 
-        $this->id = $this->insertRecord($userId, $name, $uniqueId);
+        $this->id = $this->insertRecord($userId, $name, $uniqueId, $deleted);
 
         return true;
     }
 
+    /**
+     * 
+     * @param type $id
+     * @return DeviceRecord
+     * @throws OrderNotFoundException
+     */
     public function load($id)
     {
         $escapedId = $this->db->quote($id);
