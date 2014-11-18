@@ -32,6 +32,8 @@ class LicenseRecord extends AbstractRecord
     protected $activationDate;
     protected $expirationDate;
     protected $lifetime;
+    protected $currency;
+    protected $amount = 0;
     protected $keys = array(
         'id' => 'id',
         'siteId' => 'site_id',
@@ -41,6 +43,8 @@ class LicenseRecord extends AbstractRecord
         'activationDate' => 'activation_date',
         'activationDate' => 'expiration_date',
         'lifetime' => 'lifetime',
+        'currency' => 'currency',
+        'amount' => 'amount',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -50,11 +54,13 @@ class LicenseRecord extends AbstractRecord
      * 
      * @var array
      */
-    protected $allowedStatuses = array(self::STATUS_INACTIVE, self::STATUS_ACTIVE, self::STATUS_EXPIRED);
+    protected $allowedStatuses = array(self::STATUS_PENDING, self::STATUS_AVAILABLE, self::STATUS_ACTIVE, self::STATUS_CANCELED, self::STATUS_INACTIVE);
 
     const STATUS_INACTIVE = 'inactive';
     const STATUS_ACTIVE = 'active';
-    const STATUS_EXPIRED = 'expired';
+    const STATUS_PENDING = 'pending';
+    const STATUS_AVAILABLE = 'available';
+    const STATUS_CANCELED = 'canceled';
 
     public function setOrderProduct(OrderProductRecord $value)
     {
@@ -194,8 +200,32 @@ class LicenseRecord extends AbstractRecord
     {
         return $this->lifetime;
     }
+    
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
 
-    private function updateRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime)
+    public function setCurrency($value)
+    {
+        $this->currency = $value;
+
+        return $this;
+    }
+    
+    public function setAmount($value)
+    {
+        $this->amount = $value;
+
+        return $this;
+    }
+    
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    private function updateRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount)
     {
         $rows = $this->db->exec("UPDATE `orders_products` SET
                                         `user_id` = {$userId},
@@ -206,7 +236,9 @@ class LicenseRecord extends AbstractRecord
                                         `status` = {$status},
                                         `activation_date` = {$activationDate},
                                         `expiration_date` = {$expirationDate},
-                                        `lifetime` = {$lifetime}
+                                        `lifetime` = {$lifetime},
+                                        `currency` = {$currency},
+                                        `amount` = {$amount},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -214,7 +246,7 @@ class LicenseRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime)
+    private function insertRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount)
     {
         $this->db->exec("INSERT INTO `licenses` SET
                             `user_id` = {$userId},
@@ -225,7 +257,9 @@ class LicenseRecord extends AbstractRecord
                             `status` = {$status},
                             `activation_date` = {$activationDate},
                             `expiration_date` = {$expirationDate},
-                            `lifetime` = {$lifetime}
+                            `lifetime` = {$lifetime},
+                            `currency` = {$currency},
+                            `amount` = {$amount}
                         ");
 
         return $this->db->lastInsertId();
@@ -272,19 +306,27 @@ class LicenseRecord extends AbstractRecord
         $status = $this->escape($this->status);
         $activationDate = $this->escape($this->activationDate);
         $expirationDate = $this->escape($this->expirationDate);
-        $lifetime = $this->escape($this->lifetime, 'NULL');
+        $lifetime = $this->escape($this->lifetime);
+        $currency = $this->escape($this->currency);
+        $amount = $this->escape($this->amount);
 
         if (!empty($this->id)) {
-            if (!$this->updateRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime)) {
+            if (!$this->updateRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount)) {
                 return false;
             }
         } else {
-            $this->id = $this->insertRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime);
+            $this->id = $this->insertRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount);
         }
 
         return true;
     }
 
+    /**
+     * 
+     * @param type $id
+     * @return LicenseRecord
+     * @throws LicenseNotFoundException
+     */
     public function load($id)
     {
         $escapedId = $this->db->quote($id);

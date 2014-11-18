@@ -178,6 +178,11 @@ class OrderPaymentRecord extends AbstractRecord
 
         return $this;
     }
+    
+    public function getAmount()
+    {
+        return $this->amount;
+    }
 
     public function getCurrency()
     {
@@ -201,11 +206,6 @@ class OrderPaymentRecord extends AbstractRecord
         $this->rate = $value;
 
         return $this;
-    }
-
-    public function getAmount()
-    {
-        return $this->amount;
     }
 
     public function getCommission()

@@ -40,6 +40,7 @@ class OrderRecord extends AbstractRecord
     protected $status;
     protected $paymentMethod;
     protected $amount;
+    protected $location;
     protected $hash;
     protected $referenceNumber;
     protected $gatewayStatus;
@@ -51,6 +52,7 @@ class OrderRecord extends AbstractRecord
         'status' => 'status',
         'paymentMethod' => 'payment_method',
         'amount' => 'amount',
+        'location' => 'location',
         'hash' => 'hash',
         'referenceNumber' => 'reference_number',
         'createdAt' => 'created_at',
@@ -134,6 +136,18 @@ class OrderRecord extends AbstractRecord
     public function getAmount()
     {
         return $this->amount;
+    }
+    
+    public function setLocation($value)
+    {
+        $this->location = $value;
+
+        return $this;
+    }
+
+    public function getLocation()
+    {
+        return $this->location;
     }
 
     public function setReferenceNumber($value)
@@ -263,7 +277,7 @@ class OrderRecord extends AbstractRecord
                         ");
     }
 
-    private function updateRecord($siteId, $userId, $status, $paymentMethod, $amount, $hash, $referenceNumber)
+    private function updateRecord($siteId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber)
     {
         $rows = $this->db->exec("UPDATE `orders` SET
                                         `site_id` = {$siteId},
@@ -271,6 +285,7 @@ class OrderRecord extends AbstractRecord
                                         `status` = {$status},
                                         `payment_method` = {$paymentMethod},
                                         `amount` = {$amount},
+                                        `location` = {$location},
                                         `hash` = {$hash},
                                         `reference_number` = {$referenceNumber},
                                         `updated_at` = NOW()
@@ -280,7 +295,7 @@ class OrderRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($siteId, $userId, $status, $paymentMethod, $amount, $hash, $referenceNumber)
+    private function insertRecord($siteId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber)
     {
         $this->db->exec("INSERT INTO `orders` SET
                                     `site_id` = {$siteId},
@@ -288,6 +303,7 @@ class OrderRecord extends AbstractRecord
                                     `status` = {$status},
                                     `payment_method` = {$paymentMethod},
                                     `amount` = {$amount},
+                                    `location` = {$location},
                                     `hash` = {$hash},
                                     `reference_number` = {$referenceNumber}
                                 ");
@@ -332,13 +348,14 @@ class OrderRecord extends AbstractRecord
         $status = $this->escape($this->status, self::STATUS_CREATED, true);
         $paymentMethod = $this->escape($this->paymentMethod);
         $amount = $this->escape($this->amount);
+        $location = $this->escape($this->location);
         $hash = $this->escape($this->generateHash());
         $referenceNumber = $this->escape($this->referenceNumber);
 
         if (!empty($this->id)) {
-            $this->updateRecord($siteId, $userId, $status, $paymentMethod, $amount, $hash, $referenceNumber);
+            $this->updateRecord($siteId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber);
         } else {
-            $this->id = $this->insertRecord($siteId, $userId, $status, $paymentMethod, $amount, $hash, $referenceNumber);
+            $this->id = $this->insertRecord($siteId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber);
         }
 
         $gatewayStatus = $this->escape($this->gatewayStatus);
