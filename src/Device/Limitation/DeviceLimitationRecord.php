@@ -344,7 +344,7 @@ class DeviceLimitationRecord extends AbstractRecord
 
     private function updateRecord($deviceId, $limitations)
     {
-        $rows = $this->db->exec("UPDATE `limitations` SET
+        $rows = $this->db->exec("UPDATE `devices_limitations` SET
                                         `device_id` = {$deviceId},
                                         `sms` = {$limitations['sms']},
                                         `call` = {$limitations['call']},
@@ -374,7 +374,7 @@ class DeviceLimitationRecord extends AbstractRecord
 
     private function insertRecord($deviceId, $limitations)
     {
-        $this->db->exec("INSERT INTO `limitations` SET
+        $this->db->exec("INSERT INTO `devices_limitations` SET
                             `device_id` = {$deviceId},
                             `sms` = {$limitations['sms']},
                             `call` = {$limitations['call']},
