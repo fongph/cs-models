@@ -122,7 +122,7 @@ class DeviceRecord extends AbstractRecord
                                         `user_id` = {$userId},
                                         `name` = {$name},
                                         `unique_id` = {$uniqueId},
-                                        `deleted` = {$deleted}
+                                        `deleted` = {$deleted},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
