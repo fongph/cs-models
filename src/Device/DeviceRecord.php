@@ -58,9 +58,9 @@ class DeviceRecord extends AbstractRecord
         return $this->name;
     }
     
-    public function setDeleted($value)
+    public function setDeleted($value = true)
     {
-        $this->deleted = $value;
+        $this->deleted = $this->boolToNum($value);
 
         return $this;
     }
