@@ -185,7 +185,7 @@ class DeviceRecord extends AbstractRecord
             return $this->loadFromArray($data);
         }
 
-        throw new OrderNotFoundException('Unable to load order record');
+        throw new DeviceNotFoundException('Unable to load order record');
     }
 
 }
