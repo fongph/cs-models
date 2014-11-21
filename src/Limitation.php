@@ -93,6 +93,15 @@ class Limitation
         return ($this->value & $option == $option);
     }
 
+    public static function hasValueOption($value, $option)
+    {
+        if (!in_array($option, self::$allowedOptions)) {
+            throw new Limitation\InvalidOptionException("Invalid option!");
+        }
+
+        return ($value & $option == $option);
+    }
+
     public function setSms($value)
     {
         $this->sms = $value;
