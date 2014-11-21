@@ -1,6 +1,6 @@
 <?php
 
-namespace CS\Models\Products;
+namespace CS\Models\Limitation;
 
 /**
  * Description of InvalidLimitationIdException
