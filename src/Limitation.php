@@ -3,7 +3,7 @@
 namespace CS\Models;
 
 /**
- * Description of RecordsIterator
+ * Description of Limitation
  *
  * @author root
  */
@@ -31,7 +31,7 @@ class Limitation
     const KEYLOGGER = 262144;
     const OLD_DATA = 524288;
 
-    static $allowedOptions = array(
+    private static $allowedOptions = array(
         self::SMS,
         self::CALL,
         self::GPS,
@@ -53,11 +53,14 @@ class Limitation
         self::KEYLOGGER,
         self::OLD_DATA
     );
-    
     protected $value = 0;
+    protected $sms = 0;
+    protected $call = 0;
 
-    public function __construct($value = 0)
+    public function __construct($sms = 0, $call = 0, $value = 0)
     {
+        $this->sms = $sms;
+        $this->call = $call;
         $this->value = $value;
     }
 
@@ -81,13 +84,52 @@ class Limitation
         return $this;
     }
 
-    public function merge($value)
+    public function hasOption($option)
     {
-        $this->value &= $value;
+        if (!in_array($option, self::$allowedOptions)) {
+            throw new Limitation\InvalidOptionException("Invalid option!");
+        }
+
+        return ($this->value & $option == $option);
+    }
+
+    public function setSms($value)
+    {
+        $this->sms = $value;
+    }
+
+    public function setCall($value)
+    {
+        $this->call = $value;
+    }
+
+    public function getSms()
+    {
+        return $this->sms;
+    }
+
+    public function getCall()
+    {
+        return $this->call;
+    }
+
+    public function merge(Limitation $limitation, $resetCount = false)
+    {
+        if ($resetCount) {
+            $this->sms = max($this->sms, $limitation->getSms());
+            $this->call = max($this->call, $limitation->getCall());
+        }
+
+        $this->value &= $limitation->getValue();
+
+        return $this;
     }
 
     public function getValue()
     {
+        $this->setOption(self::SMS, $this->sms > 0)
+                ->setCall(self::CALL, $this->call > 0);
+
         return $this->value;
     }
 
