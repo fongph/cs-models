@@ -67,6 +67,8 @@ class Limitation
     public function setValue($value)
     {
         $this->value = $value;
+        
+        return $this;
     }
 
     public function setOption($option, $value)
@@ -105,11 +107,15 @@ class Limitation
     public function setSms($value)
     {
         $this->sms = $value;
+        
+        return $this;
     }
 
     public function setCall($value)
     {
         $this->call = $value;
+        
+        return $this;
     }
 
     public function getSms()
