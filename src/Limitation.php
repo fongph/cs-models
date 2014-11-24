@@ -30,6 +30,7 @@ class Limitation
     const APPLICATIONS = 131072;
     const KEYLOGGER = 262144;
     const OLD_DATA = 524288;
+    const SMS_COMMANDS = 1048576;
 
     private static $allowedOptions = array(
         self::SMS,
