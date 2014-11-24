@@ -52,7 +52,8 @@ class Limitation
         self::EMAILS,
         self::APPLICATIONS,
         self::KEYLOGGER,
-        self::OLD_DATA
+        self::OLD_DATA,
+        self::SMS_COMMANDS
     );
     protected $value = 0;
     protected $sms = 0;
