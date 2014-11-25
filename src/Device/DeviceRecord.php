@@ -23,16 +23,42 @@ class DeviceRecord extends AbstractRecord
     protected $userId;
     protected $name;
     protected $uniqueId;
+    protected $os = self::NETWORK_UNKNOWN;
+    protected $osVersion;
+    protected $model;
+    protected $appVersion = 0;
+    protected $time = 0;
+    protected $lastVisit = 0;
+    protected $network = self::NETWORK_UNKNOWN;
+    protected $rooted = 0;
+    protected $power = 0;
     protected $deleted = 0;
     protected $keys = array(
         'id' => 'id',
         'userId' => 'user_id',
         'name' => 'name',
         'uniqueId' => 'unique_id',
+        'os' => 'os',
+        'osVersion' => 'os_version',
+        'model' => 'model',
+        'appVersion' => 'app_version',
+        'time' => 'time',
+        'lastVisit' => 'last_visit',
+        'network' => 'network',
+        'rooted' => 'rooted',
+        'power' => 'power',
         'deleted' => 'deleted',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
+
+    const OS_UNKNOWN = 'unknown';
+    const OS_ANDROID = 'android';
+    const OS_BLACKBERRY = 'blackberry';
+    const OS_IOS = 'ios';
+    const NETWORK_UNKNOWN = 'unknown';
+    const NETWORK_MOBILE = 'mobile';
+    const NETWORK_WIFI = 'wifi';
 
     public function setUserId($id)
     {
@@ -57,7 +83,115 @@ class DeviceRecord extends AbstractRecord
     {
         return $this->name;
     }
-    
+
+    public function setOS($value)
+    {
+        $this->os = $value;
+
+        return $this;
+    }
+
+    public function getOS()
+    {
+        return $this->os;
+    }
+
+    public function setOSVersion($value)
+    {
+        $this->osVersion = $value;
+
+        return $this;
+    }
+
+    public function getOSVersion()
+    {
+        return $this->osVersion;
+    }
+
+    public function setModel($value)
+    {
+        $this->model = $value;
+
+        return $this;
+    }
+
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    public function setAppVersion($value)
+    {
+        $this->appVersion = $value;
+
+        return $this;
+    }
+
+    public function getAppVersion()
+    {
+        return $this->appVersion;
+    }
+
+    public function setTime($value)
+    {
+        $this->time = $value;
+
+        return $this;
+    }
+
+    public function getTime()
+    {
+        return $this->time;
+    }
+
+    public function setLastVisit($value)
+    {
+        $this->lastVisit = $value;
+
+        return $this;
+    }
+
+    public function getLastVisit()
+    {
+        return $this->lastVisit;
+    }
+
+    public function setNetwork($value)
+    {
+        $this->network = $value;
+
+        return $this;
+    }
+
+    public function getNetwork()
+    {
+        return $this->network;
+    }
+
+    public function setRooted($value)
+    {
+        $this->rooted = $value;
+
+        return $this;
+    }
+
+    public function getRooted()
+    {
+        return $this->rooted;
+    }
+
+    public function setPower($value)
+    {
+        $this->power = $value;
+
+        return $this;
+    }
+
+    public function getPower()
+    {
+        return $this->power;
+    }
+
     public function setDeleted($value = true)
     {
         $this->deleted = $this->boolToNum($value);
@@ -116,12 +250,21 @@ class DeviceRecord extends AbstractRecord
         return null;
     }
 
-    private function updateRecord($userId, $name, $uniqueId, $deleted)
+    private function updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted)
     {
         $rows = $this->db->exec("UPDATE `devices` SET
                                         `user_id` = {$userId},
                                         `name` = {$name},
                                         `unique_id` = {$uniqueId},
+                                        `os` = {$os},
+                                        `os_version` = {$osVersion},
+                                        `model` = {$model},
+                                        `app_version` = {$appVersion},
+                                        `time` = {$time},
+                                        `last_visit` = {$lastVisit},
+                                        `network` = {$network},
+                                        `rooted` = {$rooted},
+                                        `power` = {$power},
                                         `deleted` = {$deleted},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
@@ -130,12 +273,21 @@ class DeviceRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($userId, $name, $uniqueId, $deleted)
+    private function insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted)
     {
         $this->db->exec("INSERT INTO `devices` SET
                                     `user_id` = {$userId},
                                     `name` = {$name},
                                     `unique_id` = {$uniqueId},
+                                    `os` = {$os},
+                                    `os_version` = {$osVersion},
+                                    `model` = {$model},
+                                    `app_version` = {$appVersion},
+                                    `time` = {$time},
+                                    `last_visit` = {$lastVisit},
+                                    `network` = {$network},
+                                    `rooted` = {$rooted},
+                                    `power` = {$power},
                                     `deleted` = {$deleted}
                                 ");
 
@@ -148,7 +300,7 @@ class DeviceRecord extends AbstractRecord
             throw new RecordDifferencesException("Invalid params");
         }
     }
-    
+
     private function check()
     {
         $this->checkUser();
@@ -161,13 +313,22 @@ class DeviceRecord extends AbstractRecord
         $userId = $this->escape($this->userId);
         $name = $this->escape($this->name);
         $uniqueId = $this->escape($this->uniqueId);
+        $os = $this->escape($this->os);
+        $osVersion = $this->escape($this->osVersion);
+        $model = $this->escape($this->model);
+        $appVersion = $this->escape($this->appVersion);
+        $time = $this->escape($this->time);
+        $lastVisit = $this->escape($this->lastVisit);
+        $network = $this->escape($this->network);
+        $rooted = $this->escape($this->rooted);
+        $power = $this->escape($this->power);
         $deleted = $this->escape($this->deleted);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($userId, $name, $uniqueId, $deleted);
+            return $this->updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted);
         }
 
-        $this->id = $this->insertRecord($userId, $name, $uniqueId, $deleted);
+        $this->id = $this->insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted);
 
         return true;
     }
