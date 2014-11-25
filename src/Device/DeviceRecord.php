@@ -52,13 +52,18 @@ class DeviceRecord extends AbstractRecord
         'updatedAt' => 'updated_at'
     );
 
+    private static $allowedOS = array(self::OS_UNKNOWN, self::OS_ANDROID, self:: OS_BLACKBERRY, self::OS_IOS);
+    private static $allowedNetworks = array(self::NETWORK_UNKNOWN, self::NETWORK_MOBILE, self::NETWORK_WIFI);
+
+
     const OS_UNKNOWN = 'unknown';
     const OS_ANDROID = 'android';
     const OS_BLACKBERRY = 'blackberry';
     const OS_IOS = 'ios';
     const NETWORK_UNKNOWN = 'unknown';
     const NETWORK_MOBILE = 'mobile';
-    const NETWORK_WIFI = 'wifi';
+    const NETWORK_WIFI = 'wifi';    
+    
 
     public function setUserId($id)
     {
@@ -296,6 +301,14 @@ class DeviceRecord extends AbstractRecord
 
     private function checkUser()
     {
+        if (!in_array($this->network, self::getAllowedNetworks())) {
+            throw new InvalidNetworkException("Invalid payment method value");
+        }
+        
+        if (!in_array($this->os, self::getAllowedOS())) {
+            throw new InvalidOSException("Invalid payment method value");
+        }
+        
         if ($this->user instanceof UserRecord && $this->userId != $this->user->getId()) {
             throw new RecordDifferencesException("Invalid params");
         }
@@ -347,6 +360,16 @@ class DeviceRecord extends AbstractRecord
         }
 
         throw new DeviceNotFoundException('Unable to load order record');
+    }
+    
+    public static function getAllowedNetworks()
+    {
+        return self::$allowedNetworks;
+    }
+
+    public static function getAllowedOS()
+    {
+        return self::$allowedOS;
     }
 
 }
