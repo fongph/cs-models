@@ -183,6 +183,15 @@ class ProductRecord extends AbstractRecord
     {
         return $this->{'code' . ucfirst($paymentMethod)};
     }
+    
+    public static function getReferenceCodeColumn($paymentMethod)
+    {
+        if (!in_array($paymentMethod, OrderRecord::getAllowedPaymentMethods())) {
+            throw new InvalidPaymentMethodException("Invalid payment method value");
+        }
+
+        return 'code_' . $paymentMethod;
+    }
 
     public function setSite(SiteRecord $value)
     {
