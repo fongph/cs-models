@@ -85,7 +85,7 @@ class OrderRecord extends AbstractRecord
 
     private function generateHash()
     {
-        $this->hash = substr(md5(self::class . microtime()), 0, 10);
+        $this->hash = substr(md5(__CLASS__ . microtime()), 0, 10);
 
         return $this->hash;
     }
@@ -137,7 +137,7 @@ class OrderRecord extends AbstractRecord
     {
         return $this->amount;
     }
-    
+
     public function setLocation($value)
     {
         $this->location = $value;
@@ -324,7 +324,7 @@ class OrderRecord extends AbstractRecord
             throw new RecordDifferencesException("Invalid params");
         }
     }
-    
+
     private function check()
     {
         if (!in_array($this->paymentMethod, self::getAllowedPaymentMethods())) {
@@ -334,23 +334,23 @@ class OrderRecord extends AbstractRecord
         if (!in_array($this->status, self::getAllowedStatuses())) {
             throw new InvalidStatusException("Invalid status value");
         }
-        
+
         $this->checkSite();
         $this->checkUser();
     }
-    
+
     public function save()
     {
         $this->check();
-        
+
         $siteId = $this->escape($this->siteId);
         $userId = $this->escape($this->userId);
         $status = $this->escape($this->status, self::STATUS_CREATED, true);
         $paymentMethod = $this->escape($this->paymentMethod);
         $amount = $this->escape($this->amount);
         $location = $this->escape($this->location);
-        $hash = $this->escape($this->generateHash());
         $referenceNumber = $this->escape($this->referenceNumber);
+        $hash = $this->escape($this->isNew() ? $this->generateHash() : $this->hash);
 
         if (!empty($this->id)) {
             $this->updateRecord($siteId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber);

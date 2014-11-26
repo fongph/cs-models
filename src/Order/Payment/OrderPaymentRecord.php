@@ -207,6 +207,18 @@ class OrderPaymentRecord extends AbstractRecord
 
         return $this;
     }
+    
+    public function getVat()
+    {
+        return $this->vat;
+    }
+
+    public function setVat($value)
+    {
+        $this->vat = $value;
+
+        return $this;
+    }
 
     public function getCommission()
     {
