@@ -6,6 +6,7 @@ use PDO,
     CS\Models\AbstractRecord,
     CS\Models\Site\SiteRecord,
     CS\Models\Limitation\LimitationRecord,
+    CS\Models\Order\OrderRecord,
     CS\Models\RecordDifferencesException,
     CS\Models\RecordNotCreatedException;
 
