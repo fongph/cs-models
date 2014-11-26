@@ -47,4 +47,9 @@ class RecordsIterator implements \Iterator
         return isset($this->container[$this->position]);
     }
 
+    public function size()
+    {
+        return count($this->container);
+    }
+
 }
