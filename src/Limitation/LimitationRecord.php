@@ -92,6 +92,18 @@ class LimitationRecord extends AbstractRecord
 
         return $this;
     }
+    
+    public function getLifetime()
+    {
+        return $this->lifetime;
+    }
+
+    public function setLifetime($value)
+    {
+        $this->lifetime = $value;
+
+        return $this;
+    }
 
     private function updateRecord($name, $lifetime, $recurrence, $sms, $call, $value)
     {
