@@ -89,6 +89,18 @@ class SubscriptionRecord extends AbstractRecord
     {
         return $this->referenceNumber;
     }
+    
+    public function setLicenseId($value)
+    {
+        $this->licenseId = $value;
+
+        return $this;
+    }
+
+    public function getLicenseId()
+    {
+        return $this;
+    }
 
     private function updateRecord($licenseId, $paymentMethod, $referenceNumber)
     {
