@@ -99,7 +99,7 @@ class SubscriptionRecord extends AbstractRecord
 
     public function getLicenseId()
     {
-        return $this;
+        return $this->licenseId;
     }
 
     private function updateRecord($licenseId, $paymentMethod, $referenceNumber)
@@ -141,7 +141,7 @@ class SubscriptionRecord extends AbstractRecord
         $paymentMethod = $this->escape($this->paymentMethod);
         $referenceNumber = $this->escape($this->referenceNumber);
 
-        if (!empty($this->licenseId)) {
+        if (!empty($this->id)) {
             if (!$this->updateRecord($licenseId, $paymentMethod, $referenceNumber)) {
                 return false;
             }
