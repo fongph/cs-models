@@ -27,12 +27,12 @@ class LicenseRecord extends AbstractRecord
     protected $productId;
     protected $orderProductId;
     protected $deviceId;
-    protected $status;
-    protected $productType;
+    protected $status = self::STATUS_PENDING;
+    protected $productType = ProductRecord::TYPE_PACKAGE;
     protected $activationDate = 0;
     protected $expirationDate = 0;
-    protected $lifetime;
-    protected $currency;
+    protected $lifetime = 0;
+    protected $currency = 'USD';
     protected $amount = 0;
     protected $keys = array(
         'id' => 'id',
@@ -301,14 +301,14 @@ class LicenseRecord extends AbstractRecord
         $this->check();
 
         $userId = $this->escape($this->userId);
-        $productId = $this->escape($this->productId, 'NULL');
+        $productId = $this->escape($this->productId);
         $deviceId = $this->escape($this->deviceId, 'NULL');
         $orderProductId = $this->escape($this->orderProductId, 'NULL');
         $productType = $this->escape($this->productType);
         $status = $this->escape($this->status);
         $activationDate = $this->escape($this->activationDate);
         $expirationDate = $this->escape($this->expirationDate);
-        $lifetime = $this->escape($this->lifetime, 'NULL');
+        $lifetime = $this->escape($this->lifetime);
         $currency = $this->escape($this->currency);
         $amount = $this->escape($this->amount);
 

@@ -21,7 +21,7 @@ class SubscriptionRecord extends AbstractRecord
      */
     protected $license;
     protected $licenseId;
-    protected $paymentMethod;
+    protected $paymentMethod = OrderRecord::PAYMENT_METHOD_BLUESNAP;
     protected $referenceNumber;
     protected $keys = array(
         'id' => 'id',

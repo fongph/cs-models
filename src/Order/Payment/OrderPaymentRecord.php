@@ -31,14 +31,15 @@ class OrderPaymentRecord extends AbstractRecord
     protected $order;
     protected $siteId;
     protected $orderId;
-    protected $type;
-    protected $amount;
-    protected $commission;
-    protected $vat;
-    protected $discount;
+    protected $type = self::TYPE_SALE;
+    protected $amount = 0;
+    protected $commission = 0;
+    protected $vat = 0;
+    protected $discount = 0;
     protected $discountCode;
-    protected $currency;
-    protected $rate;
+    protected $currency = 'USD';
+    protected $rate = 1;
+    protected $test = 0;
     protected $keys = array(
         'id' => 'id',
         'siteId' => 'site_id',
@@ -51,6 +52,7 @@ class OrderPaymentRecord extends AbstractRecord
         'discountCode' => 'discount_code',
         'currency' => 'currency',
         'rate' => 'rate',
+        'test' => 'test',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -154,6 +156,7 @@ class OrderPaymentRecord extends AbstractRecord
 
         $this->orderId = $value->getId();
         $this->siteId = $value->getSiteId();
+        $this->test = $value->getTest();
 
         $this->order = $value;
 
@@ -170,6 +173,18 @@ class OrderPaymentRecord extends AbstractRecord
     public function getType()
     {
         return $this->type;
+    }
+    
+    public function setTest($value = true)
+    {
+        $this->test = $this->boolToNum($value);
+
+        return $this;
+    }
+
+    public function getTest()
+    {
+        return $this->test;
     }
 
     public function setAmount($value)
@@ -280,7 +295,7 @@ class OrderPaymentRecord extends AbstractRecord
         $this->checkOrder();
     }
 
-    private function updateRecord($siteId, $orderId, $type, $amount, $commission, $vat, $discount, $discountCode, $currency, $rate)
+    private function updateRecord($siteId, $orderId, $type, $amount, $commission, $vat, $discount, $discountCode, $currency, $rate, $test)
     {
         $rows = $this->db->exec("UPDATE `orders_payments` SET
                                         `site_id` = {$siteId},
@@ -293,6 +308,7 @@ class OrderPaymentRecord extends AbstractRecord
                                         `discount_code` = {$discountCode},
                                         `currency` = {$currency},
                                         `rate` = {$rate},
+                                        `test` = {$test},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -300,7 +316,7 @@ class OrderPaymentRecord extends AbstractRecord
         return ($rows > 0);
     }
     
-    private function insertRecord($siteId, $orderId, $type, $amount, $commission, $vat, $discount, $discountCode, $currency, $rate)
+    private function insertRecord($siteId, $orderId, $type, $amount, $commission, $vat, $discount, $discountCode, $currency, $rate, $test)
     {
         $this->db->exec("INSERT INTO `orders_payments` SET
                             `site_id` = {$siteId},
@@ -312,7 +328,8 @@ class OrderPaymentRecord extends AbstractRecord
                             `discount` = {$discount},
                             `discount_code` = {$discountCode},
                             `currency` = {$currency},
-                            `rate` = {$rate}
+                            `rate` = {$rate},
+                            `test` = {$test}
                         ");
 
         return $this->db->lastInsertId();
@@ -325,18 +342,19 @@ class OrderPaymentRecord extends AbstractRecord
         $siteId = $this->escape($this->siteId);
         $orderId = $this->escape($this->orderId);
         $type = $this->escape($this->type);
-        $amount = $this->escape($this->amount, 0);
-        $commission = $this->escape($this->commission, 0);
-        $vat = $this->escape($this->vat, 0);
-        $discount = $this->escape($this->discount, 0);
+        $amount = $this->escape($this->amount);
+        $commission = $this->escape($this->commission);
+        $vat = $this->escape($this->vat);
+        $discount = $this->escape($this->discount);
         $discountCode = $this->escape($this->discountCode);
-        $currency = $this->escape($this->currency, 'USD', true);
-        $rate = $this->escape($this->rate, 1);
+        $currency = $this->escape($this->currency);
+        $rate = $this->escape($this->rate);
+        $test = $this->escape($this->test);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($siteId, $orderId, $type, $amount, $commission, $vat, $discount, $discountCode, $currency, $rate);
+            return $this->updateRecord($siteId, $orderId, $type, $amount, $commission, $vat, $discount, $discountCode, $currency, $rate, $test);
         } else {
-            $this->id = $this->insertRecord($siteId, $orderId, $type, $amount, $commission, $vat, $discount, $discountCode, $currency, $rate);
+            $this->id = $this->insertRecord($siteId, $orderId, $type, $amount, $commission, $vat, $discount, $discountCode, $currency, $rate, $test);
         }
 
         return true;
