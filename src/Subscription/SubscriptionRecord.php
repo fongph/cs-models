@@ -5,7 +5,6 @@ namespace CS\Models\Subscription;
 use CS\Models\AbstractRecord,
     CS\Models\License\LicenseRecord,
     CS\Models\Order\OrderRecord,
-    CS\Models\Order\Product\OrderProductRecord,
     CS\Models\Order\InvalidPaymentMethodException;
 
 /**
@@ -52,12 +51,12 @@ class SubscriptionRecord extends AbstractRecord
 
     public function getLicense()
     {
-        if ($this->license instanceof OrderProductRecord) {
+        if ($this->license instanceof LicenseRecord) {
             return $this->license;
         }
 
         if (!$this->isNew()) {
-            $licenseRecord = new OrderProductRecord($this->db);
+            $licenseRecord = new LicenseRecord($this->db);
             $licenseRecord->load($this->licenseId);
 
             $this->setLicense($licenseRecord);
