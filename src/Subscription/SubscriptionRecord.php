@@ -5,6 +5,7 @@ namespace CS\Models\Subscription;
 use CS\Models\AbstractRecord,
     CS\Models\License\LicenseRecord,
     CS\Models\Order\OrderRecord,
+    CS\Models\Order\Product\OrderProductRecord,
     CS\Models\Order\InvalidPaymentMethodException;
 
 /**
