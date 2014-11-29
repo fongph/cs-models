@@ -333,10 +333,7 @@ class LicenseRecord extends AbstractRecord
     {
         $escapedId = $this->db->quote($id);
         if (($data = $this->db->query("SELECT 
-                            *, 
-                            UNIX_TIMESTAMP(`activation_date`) as `activation_date`, 
-                            UNIX_TIMESTAMP(`expiration_date`) as `expiration_date`, 
-                            UNIX_TIMESTAMP(`lifetime`) as `lifetime`, 
+                            *,
                             UNIX_TIMESTAMP(`created_at`) as `created_at`, 
                             UNIX_TIMESTAMP(`updated_at`) as `updated_at` 
                         FROM `licenses` WHERE `id` = {$escapedId} LIMIT 1")->fetch(PDO::FETCH_ASSOC)) != false) {
