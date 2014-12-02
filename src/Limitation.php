@@ -94,7 +94,7 @@ class Limitation
             throw new Limitation\InvalidOptionException("Invalid option!");
         }
 
-        return ($this->value & $option == $option);
+        return ($this->value & $option) == $option;
     }
 
     public static function hasValueOption($value, $option)
@@ -103,7 +103,7 @@ class Limitation
             throw new Limitation\InvalidOptionException("Invalid option!");
         }
 
-        return ($value & $option == $option);
+        return ($value & $option) == $option;
     }
 
     public function setSms($value)
