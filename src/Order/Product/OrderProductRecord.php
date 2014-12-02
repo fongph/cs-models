@@ -106,6 +106,10 @@ class OrderProductRecord extends AbstractRecord
             throw new RecordNotCreatedException("Record must be created!");
         }
 
+        if ($this->getOrder() == null) {
+            throw new OrderRequiredException("You must set order value before set product!");
+        }
+        
         $this->productId = $value->getId();
         $this->referenceNumber = $value->getReferenceCode($this->getOrder()->getPaymentMethod());
 
@@ -261,6 +265,8 @@ class OrderProductRecord extends AbstractRecord
         }
         
         $this->referenceNumber = $this->getProduct()->getReferenceCode($this->getOrder()->getPaymentMethod());
+        
+        return $this;
     }
     
     /**
