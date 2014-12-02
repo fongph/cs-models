@@ -130,7 +130,7 @@ class DeviceLimitationRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($deviceId, $limitations)
+    private function insertRecord($deviceId, $sms, $call, $value)
     {
         $this->db->exec("INSERT INTO `devices_limitations` SET
                             `device_id` = {$deviceId},
