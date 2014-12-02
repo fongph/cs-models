@@ -30,7 +30,7 @@ class OrderProductRecord extends AbstractRecord
     protected $product;
     protected $orderId;
     protected $productId;
-    protected $count;
+    protected $count = 1;
     protected $referenceNumber;
     protected $status = self::STATUS_ADDED;
     protected $keys = array(
