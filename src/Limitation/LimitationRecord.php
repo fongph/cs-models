@@ -18,6 +18,7 @@ class LimitationRecord extends AbstractRecord
     protected $call = 0;
     protected $value = 0;
     protected $lifetime = 0;
+    protected $period = self::PERIOD_DAY;
     protected $recurrence = 0;
     protected $keys = array(
         'id' => 'id',
@@ -26,11 +27,16 @@ class LimitationRecord extends AbstractRecord
         'call' => 'call',
         'value' => 'value',
         'lifetime' => 'lifetime',
+        'period' => 'period',
         'recurrence' => 'recurrence',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
 
+    const PERIOD_DAY = 'day';
+    const PERIOD_WEEK = 'week';
+    const PERIOD_MONTH = 'month';
+    const PERIOD_YEAR = 'year';
     const UNLIMITED_VALUE = 65535;
 
     public function getRecurrence()
@@ -104,8 +110,20 @@ class LimitationRecord extends AbstractRecord
 
         return $this;
     }
+    
+    public function getPeriod()
+    {
+        return $this->period;
+    }
 
-    private function updateRecord($name, $lifetime, $recurrence, $sms, $call, $value)
+    public function setPeriod($value)
+    {
+        $this->period = $value;
+
+        return $this;
+    }
+
+    private function updateRecord($name, $lifetime, $period, $recurrence, $sms, $call, $value)
     {
         $rows = $this->db->exec("UPDATE `limitations` SET
                                         `name` = {$name},
@@ -113,6 +131,7 @@ class LimitationRecord extends AbstractRecord
                                         `call` = {$call},
                                         `value` = {$value},
                                         `lifetime` = {$lifetime},
+                                        `period` = {$period},
                                         `recurrence` = {$recurrence},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
@@ -121,7 +140,7 @@ class LimitationRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($name, $lifetime, $recurrence, $sms, $call, $value)
+    private function insertRecord($name, $lifetime, $period, $recurrence, $sms, $call, $value)
     {
         $this->db->exec("INSERT INTO `limitations` SET
                             `name` = {$name},
@@ -129,6 +148,7 @@ class LimitationRecord extends AbstractRecord
                             `call` = {$call},
                             `value` = {$value},
                             `lifetime` = {$lifetime},
+                            `period` = {$period},
                             `recurrence` = {$recurrence}
                         ");
 
@@ -139,15 +159,16 @@ class LimitationRecord extends AbstractRecord
     {
         $name = $this->escape($this->name);
         $lifetime = $this->escape($this->lifetime);
+        $period = $this->escape($this->period);
         $recurrence = $this->escape($this->recurrence);
         $sms = $this->escape($this->sms);
         $call = $this->escape($this->call);
         $value = $this->escape($this->value);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($name, $lifetime, $recurrence, $sms, $call, $value);
+            return $this->updateRecord($name, $lifetime, $period, $recurrence, $sms, $call, $value);
         } else {
-            $this->id = $this->insertRecord($name, $lifetime, $recurrence, $sms, $call, $value);
+            $this->id = $this->insertRecord($name, $lifetime, $period, $recurrence, $sms, $call, $value);
         }
     }
 

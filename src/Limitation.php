@@ -137,7 +137,7 @@ class Limitation
             $this->call = max($this->call, $limitation->getCall());
         }
 
-        $this->value &= $limitation->getValue();
+        $this->value |= $limitation->getValue();
 
         return $this;
     }
