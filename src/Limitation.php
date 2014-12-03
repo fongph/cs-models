@@ -145,7 +145,7 @@ class Limitation
     public function getValue()
     {
         $this->setOption(self::SMS, $this->sms > 0)
-                ->setCall(self::CALL, $this->call > 0);
+                ->setOption(self::CALL, $this->call > 0);
 
         return $this->value;
     }
