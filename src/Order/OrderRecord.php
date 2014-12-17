@@ -393,7 +393,7 @@ class OrderRecord extends AbstractRecord
         $this->check();
 
         $siteId = $this->escape($this->siteId);
-        $userId = $this->escape($this->userId);
+        $userId = $this->escape($this->userId, 'NULL');
         $status = $this->escape($this->status, self::STATUS_CREATED, true);
         $paymentMethod = $this->escape($this->paymentMethod);
         $amount = $this->escape($this->amount);
