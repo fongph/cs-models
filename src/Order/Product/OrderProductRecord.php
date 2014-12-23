@@ -189,6 +189,18 @@ class OrderProductRecord extends AbstractRecord
         return $this->status;
     }
 
+    public function setInitialDeviceId($id)
+    {
+        $this->initialDeviceId = $id;
+
+        return $this;
+    }
+
+    public function getInitialDeviceId()
+    {
+        return $this->initialDeviceId;
+    }
+    
     private function checkOrder()
     {
         if ($this->order instanceof OrderRecord && $this->orderId != $this->order->getId()) {
