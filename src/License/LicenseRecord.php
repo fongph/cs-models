@@ -74,7 +74,6 @@ class LicenseRecord extends AbstractRecord
         $this->productId = $value->getProductId();
         $this->userId = $value->getOrder()->getUserId();
         $this->productType = $value->getProduct()->getType();
-        $this->lifetime = $value->getProduct()->getLimitation()->getLifetime();
 
         $this->orderProduct = $value;
 
