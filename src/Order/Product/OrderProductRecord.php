@@ -31,6 +31,7 @@ class OrderProductRecord extends AbstractRecord
     protected $orderId;
     protected $productId;
     protected $count = 1;
+    protected $initialDeviceId = 0;
     protected $referenceNumber;
     protected $status = self::STATUS_ADDED;
     protected $keys = array(
@@ -40,6 +41,7 @@ class OrderProductRecord extends AbstractRecord
         'count' => 'count',
         'referenceNumber' => 'reference_number',
         'status' => 'status',
+        'initialDeviceId' => 'initial_device_id',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -211,7 +213,7 @@ class OrderProductRecord extends AbstractRecord
         $this->checkProduct();
     }
 
-    private function updateRecord($orderId, $productId, $referenceNumber, $count, $status)
+    private function updateRecord($orderId, $productId, $referenceNumber, $count, $status, $initialDeviceId)
     {
         $rows = $this->db->exec("UPDATE `orders_products` SET
                                         `order_id` = {$orderId},
@@ -219,6 +221,7 @@ class OrderProductRecord extends AbstractRecord
                                         `reference_number` = {$referenceNumber},
                                         `count` = {$count},
                                         `status` = {$status},
+                                        `initial_device_id` = {$initialDeviceId},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -226,14 +229,15 @@ class OrderProductRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($orderId, $productId, $referenceNumber, $count, $status)
+    private function insertRecord($orderId, $productId, $referenceNumber, $count, $status, $initialDeviceId)
     {
         $this->db->exec("INSERT INTO `orders_products` SET
                             `order_id` = {$orderId},
                             `product_id` = {$productId},
                             `reference_number` = {$referenceNumber},
                             `count` = {$count},
-                            `status` = {$status}
+                            `status` = {$status},
+                            `initial_device_id` = {$initialDeviceId}
                         ");
 
         return $this->db->lastInsertId();
@@ -248,11 +252,12 @@ class OrderProductRecord extends AbstractRecord
         $count = $this->escape($this->count);
         $referenceNumber = $this->escape($this->referenceNumber);
         $status = $this->escape($this->status);
+        $initialDeviceId = $this->escape($this->initialDeviceId);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($orderId, $productId, $referenceNumber, $count, $status);
+            return $this->updateRecord($orderId, $productId, $referenceNumber, $count, $status, $initialDeviceId);
         } else {
-            $this->id = $this->insertRecord($orderId, $productId, $referenceNumber, $count, $status);
+            $this->id = $this->insertRecord($orderId, $productId, $referenceNumber, $count, $status, $initialDeviceId);
         }
 
         return true;
