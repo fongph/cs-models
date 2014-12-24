@@ -273,8 +273,7 @@ class LicenseRecord extends AbstractRecord
             $equal = $this->orderProductId == $this->orderProduct->getId() &&
                     $this->productId == $this->orderProduct->getProductId() &&
                     $this->userId == $this->orderProduct->getOrder()->getUserId() &&
-                    $this->productType == $this->orderProduct->getProduct()->getType() &&
-                    $this->lifetime == $this->orderProduct->getProduct()->getLimitation()->getLifetime();
+                    $this->productType == $this->orderProduct->getProduct()->getType();
 
             if (!$equal) {
                 throw new RecordDifferencesException("Invalid params");
