@@ -55,12 +55,12 @@ class LimitationRecord extends AbstractRecord
     
     public function getContinuous()
     {
-        return $this->ontinuous;
+        return $this->continuous;
     }
 
     public function setContinuous($value)
     {
-        $this->ontinuous = $value;
+        $this->continuous = $value;
 
         return $this;
     }
