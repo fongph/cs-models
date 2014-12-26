@@ -23,11 +23,13 @@ class SubscriptionRecord extends AbstractRecord
     protected $licenseId;
     protected $paymentMethod = OrderRecord::PAYMENT_METHOD_BLUESNAP;
     protected $referenceNumber;
+    protected $auto = 0;
     protected $keys = array(
         'id' => 'id',
         'licenseId' => 'license_id',
-        'referenceNumber' => 'reference_number',
         'paymentMethod' => 'payment_method',
+        'referenceNumber' => 'reference_number',
+        'auto' => 'auto',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -102,12 +104,13 @@ class SubscriptionRecord extends AbstractRecord
         return $this->licenseId;
     }
 
-    private function updateRecord($licenseId, $paymentMethod, $referenceNumber)
+    private function updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto)
     {
         $rows = $this->db->exec("UPDATE `subscriptions` SET
                                         `license_id` = {$licenseId},
                                         `payment_method` = {$paymentMethod},
                                         `reference_number` = {$referenceNumber},
+                                        `auto` = {$auto},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -115,12 +118,13 @@ class SubscriptionRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($licenseId, $paymentMethod, $referenceNumber)
+    private function insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto)
     {
         $this->db->exec("INSERT INTO `subscriptions` SET
                             `license_id` = {$licenseId},
                             `payment_method` = {$paymentMethod},
-                            `reference_number` = {$referenceNumber}
+                            `reference_number` = {$referenceNumber},
+                            `auto` = {$auto}
                         ");
 
         return $this->db->lastInsertId();
@@ -140,13 +144,14 @@ class SubscriptionRecord extends AbstractRecord
         $licenseId = $this->escape($this->licenseId);
         $paymentMethod = $this->escape($this->paymentMethod);
         $referenceNumber = $this->escape($this->referenceNumber);
+        $auto = $this->escape($this->auto);
 
         if (!empty($this->id)) {
-            if (!$this->updateRecord($licenseId, $paymentMethod, $referenceNumber)) {
+            if (!$this->updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto)) {
                 return false;
             }
         } else {
-            $this->id = $this->insertRecord($licenseId, $paymentMethod, $referenceNumber);
+            $this->id = $this->insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto);
         }
 
         return true;
