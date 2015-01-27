@@ -31,6 +31,7 @@ class Limitation
     const KEYLOGGER = 262144;
     const OLD_DATA = 524288;
     const SMS_COMMANDS = 1048576;
+    const INSTAGRAM = 2097152;
 
     private static $allowedOptions = array(
         self::SMS,
