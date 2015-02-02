@@ -36,6 +36,7 @@ class ProductRecord extends AbstractRecord
     protected $namespace;
     protected $group;
     protected $active = 0;
+    protected $trial = 0;
     protected $price = 0;
     protected $codeBluesnap;
     protected $codeFastspring;
@@ -51,6 +52,7 @@ class ProductRecord extends AbstractRecord
         'price' => 'price',
         'codeBluesnap' => 'code_bluesnap',
         'codeFastspring' => 'code_fastspring',
+        'trial' => 'trial',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -142,6 +144,18 @@ class ProductRecord extends AbstractRecord
     public function getActive()
     {
         return $this->active > 0;
+    }
+    
+    public function setTrial($value = true)
+    {
+        $this->trial = intval($value > 0);
+
+        return $this;
+    }
+
+    public function getTrial()
+    {
+        return $this->trial > 0;
     }
 
     public function setPrice($value)
@@ -262,7 +276,7 @@ class ProductRecord extends AbstractRecord
         return null;
     }
 
-    private function updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring)
+    private function updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $trial)
     {
         $rows = $this->db->exec("UPDATE `products` SET
                                         `site_id` = {$siteId},
@@ -275,6 +289,7 @@ class ProductRecord extends AbstractRecord
                                         `price` = {$price},
                                         `code_bluesnap` = {$codeBluesnap},
                                         `code_fastspring` = {$codeFastspring},
+                                        `trial` = {$trial},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -282,7 +297,7 @@ class ProductRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring)
+    private function insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $trial)
     {
         $this->db->exec("INSERT INTO `products` SET 
                             `site_id` = {$siteId},
@@ -294,7 +309,8 @@ class ProductRecord extends AbstractRecord
                             `active` = {$active},
                             `price` = {$price},
                             `code_bluesnap` = {$codeBluesnap},
-                            `code_fastspring` = {$codeFastspring}
+                            `code_fastspring` = {$codeFastspring},
+                            `trial` = {$trial}
                         ");
 
         return $this->db->lastInsertId();
@@ -338,11 +354,12 @@ class ProductRecord extends AbstractRecord
         $price = $this->escape($this->price);
         $codeBluesnap = $this->escape($this->codeBluesnap);
         $codeFastspring = $this->escape($this->codeFastspring);
+        $trial = $this->escape($this->trial);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring);
+            return $this->updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $trial);
         } else {
-            $this->id = $this->insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring);
+            $this->id = $this->insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $trial);
         }
     }
 
