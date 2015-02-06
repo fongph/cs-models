@@ -54,7 +54,8 @@ class Limitation
         self::APPLICATIONS,
         self::KEYLOGGER,
         self::OLD_DATA,
-        self::SMS_COMMANDS
+        self::SMS_COMMANDS,
+        self::INSTAGRAM
     );
     protected $value = 0;
     protected $sms = 0;
