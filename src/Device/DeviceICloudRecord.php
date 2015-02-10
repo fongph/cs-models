@@ -106,6 +106,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
+                `last_backup` = {$this->lastBackup},
                 `last_sync` = {$this->lastSync},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
@@ -123,6 +124,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
+                `last_backup` = {$this->lastBackup},
                 `last_sync` = {$this->lastSync},
                 `created_at` = NOW()"
         );
