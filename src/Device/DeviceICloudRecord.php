@@ -13,7 +13,7 @@ use PDO,
  * @property integer $devId
  * @property string $appleId
  * @property string $applePassword
- * @property string $backupUrl
+ * @property string $deviceHash
  * @property integer $processing
  * @property integer $lastError
  * @property integer $lastBackup
@@ -24,7 +24,7 @@ use PDO,
  * @method DeviceICloudRecord setDevId (integer $value)
  * @method DeviceICloudRecord setAppleId (string $value)
  * @method DeviceICloudRecord setApplePassword (string $value)
- * @method DeviceICloudRecord setBackupUrl (string $value)
+ * @method DeviceICloudRecord setDeviceHash (string $value)
  * @method DeviceICloudRecord setProcessing (integer $value)
  * @method DeviceICloudRecord setLastError (integer $value)
  * @method DeviceICloudRecord setLastSync (integer $value)
@@ -39,7 +39,7 @@ class DeviceICloudRecord extends AbstractRecord
         'devId' => null,
         'appleId' => null,
         'applePassword' => null,
-        'backupUrl' => null,
+        'deviceHash' => null,
         'processing' => 0,
         'lastBackup' => null,
         'lastError' => 0,
@@ -100,14 +100,14 @@ class DeviceICloudRecord extends AbstractRecord
         return (bool)$this->db->exec("
             UPDATE `devices_icloud` 
             SET `dev_id` = {$this->devId},
-                `apple_id` = {$this->appleId}, 
-                `apple_password` = {$this->applePassword}, 
-                `backup_url` = {$this->backupUrl},
+                `apple_id` = {$this->db->quote($this->appleId)},
+                `apple_password` = {$this->db->quote($this->applePassword)},
+                `device_hash` = {$this->db->quote($this->deviceHash)},
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
-                `last_backup` = {$this->lastBackup},
-                `last_sync` = {$this->lastSync},
+                `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
+                `last_sync` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastSync)}), {$this->db->quote($this->lastSync)}, NULL),
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -117,15 +117,15 @@ class DeviceICloudRecord extends AbstractRecord
     {
         $this->db->exec("
             INSERT INTO `devices_icloud` 
-            SET `dev_id` = {$this->devId}, 
-                `apple_id` = {$this->appleId}, 
-                `apple_password` = {$this->applePassword}, 
-                `backup_url` = {$this->backupUrl},
+            SET `dev_id` = {$this->devId},
+                `apple_id` = {$this->db->quote($this->appleId)},
+                `apple_password` = {$this->db->quote($this->applePassword)},
+                `device_hash` = {$this->db->quote($this->deviceHash)},
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
-                `last_backup` = {$this->lastBackup},
-                `last_sync` = {$this->lastSync},
+                `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
+                `last_sync` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastSync)}), {$this->db->quote($this->lastSync)}, NULL),
                 `created_at` = NOW()"
         );
 
@@ -137,8 +137,7 @@ class DeviceICloudRecord extends AbstractRecord
         $checkStatus = is_numeric($this->devId)
             && !empty($this->appleId)
             && !empty($this->applePassword)
-            && !empty($this->backupUrl)
-            && !empty($this->lastBackup);
+            && !empty($this->deviceHash);
         if($checkStatus) 
             return true;
         else throw new InvalidICloudParamsException; 
@@ -146,20 +145,11 @@ class DeviceICloudRecord extends AbstractRecord
     
     public function save()
     {
-        
+        $this->processing = $this->processing ? 1 : 0;
+        $this->devId      = (int)$this->devId;
+        $this->quotaUsed  = (int)$this->quotaUsed;
+        $this->lastError  = (int)$this->lastError;
         $this->check();
-        $this->devId         = (int)$this->devId;
-        $this->appleId       = $this->escape($this->appleId);
-        $this->applePassword = $this->escape($this->applePassword);
-        $this->backupUrl     = $this->escape($this->backupUrl);
-        $this->processing    = (int)$this->processing;
-        $this->quotaUsed     = $this->escape($this->quotaUsed);
-        $this->lastError     = (int)$this->lastError;
-        $this->lastBackup    = $this->escape($this->lastBackup);
-        
-        if(!empty($this->lastSync))
-            $this->lastSync  = $this->escape($this->lastSync);
-        else $this->lastSync = 'NULL';
         
         if (!empty($this->id)) {
             return $this->updateRecord();
