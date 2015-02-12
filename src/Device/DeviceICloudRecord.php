@@ -99,7 +99,7 @@ class DeviceICloudRecord extends AbstractRecord
 
         return (bool)$this->db->exec("
             UPDATE `devices_icloud` 
-            SET `dev_id` = {$this->id}, 
+            SET `dev_id` = {$this->devId},
                 `apple_id` = {$this->appleId}, 
                 `apple_password` = {$this->applePassword}, 
                 `backup_url` = {$this->backupUrl},
