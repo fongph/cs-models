@@ -34,6 +34,20 @@ use PDO,
  */
 class DeviceICloudRecord extends AbstractRecord
 {
+    protected $keys = array(
+        'id' => 'id',
+        'devId' => 'dev_id',
+        'appleId' => 'apple_id',
+        'applePassword' => 'apple_password',
+        'deviceHash' => 'device_hash',
+        'processing' => 'processing',
+        'quotaUsed' => 'quota_used',
+        'lastError' => 'last_error',
+        'lastBackup' => 'last_backup',
+        'lastSync' => 'last_sync',
+        'createdAt' => 'created_at',
+        'updatedAt' => 'updated_at',
+    );
     protected $recordProperties = array(
         'id' => null,
         'devId' => null,
@@ -96,7 +110,6 @@ class DeviceICloudRecord extends AbstractRecord
 
     private function updateRecord()
     {
-
         return (bool)$this->db->exec("
             UPDATE `devices_icloud` 
             SET `dev_id` = {$this->devId},
@@ -107,7 +120,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
                 `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
-                `last_sync` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastSync)}), {$this->db->quote($this->lastSync)}, NULL),
+                `last_sync` = {$this->db->quote($this->lastSync)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -189,7 +202,8 @@ class DeviceICloudRecord extends AbstractRecord
                 UNIX_TIMESTAMP(`created_at`) as `created_at`,
                 UNIX_TIMESTAMP(`updated_at`) as `updated_at`
             FROM `devices_icloud` 
-            WHERE `dev_id` = {$this->db->quote($devId)} LIMIT 1")->fetch(PDO::FETCH_ASSOC);
+            WHERE `dev_id` = {$this->db->quote($devId)}
+            LIMIT 1")->fetch(PDO::FETCH_ASSOC);
 
         if ($data === false)
             throw new DeviceNotFoundException('Unable to load order record');
