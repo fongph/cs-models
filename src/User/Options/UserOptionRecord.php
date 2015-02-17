@@ -22,14 +22,23 @@ class UserOptionRecord extends AbstractRecord
     protected $userId;
     protected $option;
     protected $value;
+    protected $scope;
     protected $keys = array(
         'id' => 'id',
         'userId' => 'user_id',
         'option' => 'option',
         'value' => 'value',
+        'scope' => 'scope',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
+    
+    const SCOPE_GLOBAL = 'global';
+    const SCOPE_CONTROL_PANEL = 'control-panel';
+    const SCOPE_MAILING = 'mailing';
+    const SCOPE_BILLING = 'billing';
+    
+    protected static $allowedScopes = array(self::SCOPE_GLOBAL, self::SCOPE_CONTROL_PANEL, self::SCOPE_MAILING, self::SCOPE_BILLING);
 
     public function setUserId($id)
     {
@@ -103,6 +112,10 @@ class UserOptionRecord extends AbstractRecord
 
     private function checkUser()
     {
+        if ($this->scope !== null && !in_array($this->scope, self::getAllowedScopes())) {
+            throw new InvalidTypeException("Invalid user option scope value!");
+        }
+        
         if ($this->user instanceof UserRecord && $this->userId != $this->user->getId()) {
             throw new RecordDifferencesException("Invalid params");
         }
@@ -113,12 +126,13 @@ class UserOptionRecord extends AbstractRecord
         $this->checkUser();
     }
 
-    private function updateRecord($userId, $option, $value)
+    private function updateRecord($userId, $option, $value, $scope)
     {
         $rows = $this->db->exec("UPDATE `users_options` SET
                                         `user_id` = {$userId},
                                         `option` = {$option},
                                         `value` = {$value},
+                                        `scope` = {$scope},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -126,12 +140,13 @@ class UserOptionRecord extends AbstractRecord
         return ($rows > 0);
     }
     
-    private function insertRecord($userId, $option, $value)
+    private function insertRecord($userId, $option, $value, $scope)
     {
         $this->db->exec("INSERT INTO `users_options` SET
                                     `user_id` = {$userId},
                                     `option` = {$option},
-                                    `value` = {$value}
+                                    `value` = {$value},
+                                    `scope` = {$scope}
                                 ");
 
         return $this->db->lastInsertId();
@@ -144,11 +159,12 @@ class UserOptionRecord extends AbstractRecord
         $userId = $this->escape($this->userId);
         $option = $this->escape($this->option);
         $value = $this->escape($this->value);
+        $scope = $this->escape($this->scope);
         
         if (!empty($this->id)) {
-            return $this->updateRecord($userId, $option, $value);
+            return $this->updateRecord($userId, $option, $value, $scope);
         } else {
-            $this->id = $this->insertRecord($userId, $option, $value);
+            $this->id = $this->insertRecord($userId, $option, $value, $scope);
         }
         
         return true;
@@ -164,4 +180,8 @@ class UserOptionRecord extends AbstractRecord
         throw new OrderNotFoundException('Unable to load user option record');
     }
 
+    public static function getAllowedScopes() {
+        return self::$allowedScopes;
+    }
+    
 }
