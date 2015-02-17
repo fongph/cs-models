@@ -1,13 +1,13 @@
 <?php
 
-namespace CS\Models\User;
+namespace CS\Models\User\AuthLog;
 
 /**
- * Description of UserAuthLogFoundException
+ * Description of UserAuthLogNotFoundException
  *
  * @author root
  */
-class UserAuthLogFoundException extends \Exception
+class UserAuthLogNotFoundException extends \Exception
 {
     //put your code here
 }

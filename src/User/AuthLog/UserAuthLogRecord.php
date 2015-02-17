@@ -32,7 +32,7 @@ class UserAuthLogRecord extends AbstractRecord
     protected $fullInfo;
     protected $keys = array(
         'id' => 'id',
-        'userId' => 'iser_id',
+        'userId' => 'user_id',
         'ip' => 'ip',
         'country' => 'country',
         'browser' => 'browser',
@@ -275,7 +275,7 @@ class UserAuthLogRecord extends AbstractRecord
             return $this->loadFromArray($data);
         }
 
-        throw new OrderNotFoundException('Unable to load order record');
+        throw new UserAuthLogNotFoundException('Unable to load user auth record');
     }
 
 }

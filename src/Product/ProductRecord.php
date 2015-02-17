@@ -36,7 +36,7 @@ class ProductRecord extends AbstractRecord
     protected $namespace;
     protected $group;
     protected $active = 0;
-    protected $trial = 0;
+    protected $origin = self::ORIGIN_INTERNAL;
     protected $price = 0;
     protected $codeBluesnap;
     protected $codeFastspring;
@@ -52,15 +52,20 @@ class ProductRecord extends AbstractRecord
         'price' => 'price',
         'codeBluesnap' => 'code_bluesnap',
         'codeFastspring' => 'code_fastspring',
-        'trial' => 'trial',
+        'origin' => 'origin',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
     protected static $allowedTypes = array(self::TYPE_PACKAGE, self::TYPE_BUNDLE, self::TYPE_OPTION);
+    protected static $allowedOrigins = array(self::ORIGIN_INTERNAL, self::ORIGIN_GATEWAY, self::ORIGIN_GATEWAY_TRIAL, self::ORIGIN_INTERNAL_TRIAL);
 
     const TYPE_PACKAGE = 'package';
     const TYPE_BUNDLE = 'bundle';
     const TYPE_OPTION = 'option';
+    const ORIGIN_INTERNAL = 'internal';
+    const ORIGIN_GATEWAY = 'gateway';
+    const ORIGIN_GATEWAY_TRIAL = 'gateway-trial';
+    const ORIGIN_INTERNAL_TRIAL = 'internal-trial';
 
     public function setType($type)
     {
@@ -72,6 +77,18 @@ class ProductRecord extends AbstractRecord
     public function getType()
     {
         return $this->type;
+    }
+    
+    public function setOrigin($origin)
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getOrigin()
+    {
+        return $this->origin;
     }
 
     public function setSiteId($id)
@@ -145,17 +162,24 @@ class ProductRecord extends AbstractRecord
     {
         return $this->active > 0;
     }
-    
-    public function setTrial($value = true)
-    {
-        $this->trial = intval($value > 0);
 
+    /**
+     * @deprecated
+     * @param type $value
+     * @return \CS\Models\Product\ProductRecord
+     */
+    public function setTrial()
+    {
         return $this;
     }
 
+    /**
+     * @deprecated
+     * @return type
+     */
     public function getTrial()
     {
-        return $this->trial > 0;
+        return false;
     }
 
     public function setPrice($value)
@@ -198,7 +222,7 @@ class ProductRecord extends AbstractRecord
     {
         return $this->{'code' . ucfirst($paymentMethod)};
     }
-    
+
     public static function getReferenceCodeColumn($paymentMethod)
     {
         if (!in_array($paymentMethod, OrderRecord::getAllowedPaymentMethods())) {
@@ -276,7 +300,7 @@ class ProductRecord extends AbstractRecord
         return null;
     }
 
-    private function updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $trial)
+    private function updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin)
     {
         $rows = $this->db->exec("UPDATE `products` SET
                                         `site_id` = {$siteId},
@@ -289,7 +313,7 @@ class ProductRecord extends AbstractRecord
                                         `price` = {$price},
                                         `code_bluesnap` = {$codeBluesnap},
                                         `code_fastspring` = {$codeFastspring},
-                                        `trial` = {$trial},
+                                        `origin` = {$origin},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -297,7 +321,7 @@ class ProductRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $trial)
+    private function insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin)
     {
         $this->db->exec("INSERT INTO `products` SET 
                             `site_id` = {$siteId},
@@ -310,7 +334,7 @@ class ProductRecord extends AbstractRecord
                             `price` = {$price},
                             `code_bluesnap` = {$codeBluesnap},
                             `code_fastspring` = {$codeFastspring},
-                            `trial` = {$trial}
+                            `origin` = {$origin}
                         ");
 
         return $this->db->lastInsertId();
@@ -335,6 +359,10 @@ class ProductRecord extends AbstractRecord
         if ($this->type !== null && !in_array($this->type, self::getAllowedTypes())) {
             throw new InvalidTypeException("Invalid product type value!");
         }
+        
+        if ($this->origin !== null && !in_array($this->origin, self::getAllowedTypes())) {
+            throw new InvalidTypeException("Invalid product origin value!");
+        }
 
         $this->checkSite();
         $this->checkLimitation();
@@ -354,12 +382,12 @@ class ProductRecord extends AbstractRecord
         $price = $this->escape($this->price);
         $codeBluesnap = $this->escape($this->codeBluesnap);
         $codeFastspring = $this->escape($this->codeFastspring);
-        $trial = $this->escape($this->trial);
+        $origin = $this->escape($this->origin);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $trial);
+            return $this->updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin);
         } else {
-            $this->id = $this->insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $trial);
+            $this->id = $this->insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin);
         }
     }
 
@@ -376,6 +404,11 @@ class ProductRecord extends AbstractRecord
     public static function getAllowedTypes()
     {
         return self::$allowedTypes;
+    }
+    
+    public static function getAllowedOrigins()
+    {
+        return self::$allowedOrigins;
     }
 
 }
