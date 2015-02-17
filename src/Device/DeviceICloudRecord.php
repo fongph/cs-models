@@ -3,7 +3,8 @@
 namespace CS\Models\Device;
 
 use PDO,
-    CS\Models\AbstractRecord;
+    CS\Models\AbstractRecord,
+    CS\Models\Device\DeviceRecord;
 
 /**
  * Class DeviceICloudRecord
@@ -209,6 +210,17 @@ class DeviceICloudRecord extends AbstractRecord
             throw new DeviceNotFoundException('Unable to load order record');
 
         return $this->loadFromArray($data);
+    }
+    
+    public function getDeviceRecord()
+    {
+        if($this->isNew() || !$this->devId)
+            return null;
+        
+        
+        return (new DeviceRecord($this->db))
+            ->load($this->devId);
+        
     }
 
 }
