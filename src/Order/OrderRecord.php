@@ -77,13 +77,14 @@ class OrderRecord extends AbstractRecord
      * 
      * @var array
      */
-    protected static $allowedPaymentMethods = array(self::PAYMENT_METHOD_BLUESNAP, self::PAYMENT_METHOD_FASTSPRING);
+    protected static $allowedPaymentMethods = array(self::PAYMENT_METHOD_BLUESNAP, self::PAYMENT_METHOD_FASTSPRING, self::PAYMENT_METHOD_INTERNAL);
 
     const STATUS_CREATED = 'created';
     const STATUS_PENDING = 'pending';
     const STATUS_COMPLETED = 'completed';
     const PAYMENT_METHOD_BLUESNAP = 'bluesnap';
     const PAYMENT_METHOD_FASTSPRING = 'fastspring';
+    const PAYMENT_METHOD_INTERNAL = 'internal';
 
     public function getHash()
     {
