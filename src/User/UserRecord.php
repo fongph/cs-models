@@ -31,6 +31,7 @@ class UserRecord extends AbstractRecord
     protected $unlockHash;
     protected $restoreHash;
     protected $emailConfirmHash;
+    protected $name;
     protected $keys = array(
         'id' => 'id',
         'siteId' => 'site_id',
@@ -43,6 +44,7 @@ class UserRecord extends AbstractRecord
         'unlockHash' => 'unlock_hash',
         'restoreHash' => 'restore_hash',
         'emailConfirmHash' => 'email_confirm_hash',
+        'name' => 'name',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -179,6 +181,18 @@ class UserRecord extends AbstractRecord
     {
         return $this->emailConfirmHash;
     }
+    
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function setName($value)
+    {
+        $this->name = $value;
+
+        return $this;
+    }
 
     /**
      * 
@@ -201,7 +215,7 @@ class UserRecord extends AbstractRecord
         return null;
     }
 
-    private function updateRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash)
+    private function updateRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash, $name)
     {
         $rows = $this->db->exec("UPDATE `users` SET
                                         `site_id` = {$siteId},
@@ -214,6 +228,7 @@ class UserRecord extends AbstractRecord
                                         `unlock_hash` = {$unlockHash},
                                         `restore_hash` = {$restoreHash},
                                         `email_confirm_hash` = {$emailConfirmHash},
+                                        `name`  = {$name},    
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -221,7 +236,7 @@ class UserRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash)
+    private function insertRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash, $name)
     {
         $this->db->exec("INSERT INTO `users` SET 
                             `site_id` = {$siteId},
@@ -233,7 +248,8 @@ class UserRecord extends AbstractRecord
                             `locked` = {$locked},
                             `unlock_hash` = {$unlockHash},
                             `restore_hash` = {$restoreHash},
-                            `email_confirm_hash` = {$emailConfirmHash}
+                            `email_confirm_hash` = {$emailConfirmHash},
+                            `name` = {$name}     
                         ");
 
         return $this->db->lastInsertId();
@@ -265,11 +281,12 @@ class UserRecord extends AbstractRecord
         $unlockHash = $this->escape($this->unlockHash);
         $restoreHash = $this->escape($this->restoreHash);
         $emailConfirmHash = $this->escape($this->emailConfirmHash);
+        $name = $this->escape($this->name);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash);
+            return $this->updateRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash, $name);
         } else {
-            $this->id = $this->insertRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash);
+            $this->id = $this->insertRecord($siteId, $login, $password, $locale, $recordsPerPage, $emailConfirmed, $locked, $unlockHash, $restoreHash, $emailConfirmHash, $name);
         }
     }
 
