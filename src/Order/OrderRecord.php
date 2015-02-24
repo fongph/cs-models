@@ -71,7 +71,7 @@ class OrderRecord extends AbstractRecord
      * 
      * @var array
      */
-    protected static $allowedStatuses = array(self::STATUS_CREATED, self::STATUS_PENDING, self::STATUS_CANCELED);
+    protected static $allowedStatuses = array(self::STATUS_CREATED, self::STATUS_PENDING, self::STATUS_COMPLETED, self::STATUS_CANCELED);
 
     /**
      * List of allowed payment methods
