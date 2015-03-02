@@ -43,9 +43,11 @@ class StaticMap
 
     public static function getImageUrlCircle($latitude, $longitude, $width, $height, $radius)
     {
+        $diameter = $radius * 2;
+        
         for ($i = 20; $i > 0; $i--) {
-            if ($radius * 2 < self::getPixelWidth($i) * $width &&
-                    $radius * 2 < self::getPixelWidth($i) * $height) {
+            if ($diameter < self::getPixelWidth($i) * $width &&
+                    $diameter < self::getPixelWidth($i) * $height) {
                 return self::getImageUrl($latitude, $longitude, $width, $height, $i);
             }
         }
