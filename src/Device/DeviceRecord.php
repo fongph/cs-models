@@ -52,7 +52,7 @@ class DeviceRecord extends AbstractRecord
         'updatedAt' => 'updated_at'
     );
 
-    private static $allowedOS = array(self::OS_UNKNOWN, self::OS_ANDROID, self:: OS_BLACKBERRY, self::OS_IOS);
+    private static $allowedOS = array(self::OS_UNKNOWN, self::OS_ANDROID, self:: OS_BLACKBERRY, self::OS_IOS, self::OS_ICLOUD);
     private static $allowedNetworks = array(self::NETWORK_UNKNOWN, self::NETWORK_MOBILE, self::NETWORK_WIFI);
 
 
@@ -60,6 +60,8 @@ class DeviceRecord extends AbstractRecord
     const OS_ANDROID = 'android';
     const OS_BLACKBERRY = 'blackberry';
     const OS_IOS = 'ios';
+    const OS_ICLOUD = 'icloud';
+    
     const NETWORK_UNKNOWN = 'unknown';
     const NETWORK_MOBILE = 'mobile';
     const NETWORK_WIFI = 'wifi';    
