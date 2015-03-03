@@ -20,6 +20,7 @@ use PDO,
  * @property integer $lastBackup
  * @property integer $lastSync
  * @property integer $quotaUsed
+ * @property string $lastSnapshot
  *
  * @method DeviceICloudRecord setId (integer $value)
  * @method DeviceICloudRecord setDevId (integer $value)
@@ -31,6 +32,7 @@ use PDO,
  * @method DeviceICloudRecord setLastSync (integer $value)
  * @method DeviceICloudRecord setLastBackup (integer $value)
  * @method DeviceICloudRecord setQuotaUsed (integer $value)
+ * @method DeviceICloudRecord setLastSnapshot (string $value)
  *
  */
 class DeviceICloudRecord extends AbstractRecord
@@ -48,6 +50,7 @@ class DeviceICloudRecord extends AbstractRecord
         'lastSync' => 'last_sync',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
+        'lastSnapshot' => 'last_snapshot',
     );
     protected $recordProperties = array(
         'id' => null,
@@ -58,8 +61,9 @@ class DeviceICloudRecord extends AbstractRecord
         'processing' => 0,
         'lastBackup' => null,
         'lastError' => 0,
-        'lastSync' => 0,
+        'lastSync' => null,
         'quotaUsed' => null,
+        'lastSnapshot' => null,
     );
 
     public function __isset($name)
@@ -122,6 +126,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_error` = {$this->lastError},
                 `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
                 `last_sync` = {$this->db->quote($this->lastSync)},
+                `last_snapshot` = IF({$this->db->quote($this->lastSnapshot)}, {$this->db->quote($this->lastSnapshot)}, NULL),
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -140,6 +145,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_error` = {$this->lastError},
                 `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
                 `last_sync` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastSync)}), {$this->db->quote($this->lastSync)}, NULL),
+                `last_snapshot` => IF({$this->db->quote($this->lastSnapshot)}, {$this->db->quote($this->lastSnapshot)}, NULL),
                 `created_at` = NOW()"
         );
 
