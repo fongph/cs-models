@@ -34,6 +34,17 @@ use PDO,
  * @method DeviceICloudRecord setQuotaUsed (integer $value)
  * @method DeviceICloudRecord setLastSnapshot (string $value)
  *
+ * @method integer getId ()
+ * @method integer getDevId ()
+ * @method string getAppleId ()
+ * @method string getApplePassword ()
+ * @method string getDeviceHash ()
+ * @method integer getProcessing ()
+ * @method integer getLastError ()
+ * @method integer getLastSync ()
+ * @method integer getLastBackup ()
+ * @method integer getQuotaUsed ()
+ *
  */
 class DeviceICloudRecord extends AbstractRecord
 {
@@ -75,7 +86,7 @@ class DeviceICloudRecord extends AbstractRecord
     {
         switch(substr($name, 0, 3)) {
             case 'get':
-                $propName = substr($name, 3);
+                $propName = lcfirst(substr($name, 3));
                 if(array_key_exists($propName, $this->recordProperties))
                     return $this->recordProperties[$propName];
                 break;
@@ -94,7 +105,6 @@ class DeviceICloudRecord extends AbstractRecord
 
     public function __set($name, $value)
     {
-
         if(method_exists($this, $method = "set" . ucfirst($name)))
             $this->$method($value);
             
@@ -189,6 +199,7 @@ class DeviceICloudRecord extends AbstractRecord
     {
         $data = $this->db->query("
             SELECT *, 
+                UNIX_TIMESTAMP(`last_backup`) as `last_backup`,
                 UNIX_TIMESTAMP(`last_sync`) as `last_sync`,
                 UNIX_TIMESTAMP(`created_at`) as `created_at`,
                 UNIX_TIMESTAMP(`updated_at`) as `updated_at`
@@ -205,6 +216,7 @@ class DeviceICloudRecord extends AbstractRecord
     {
         $data = $this->db->query("
             SELECT *, 
+                UNIX_TIMESTAMP(`last_backup`) as `last_backup`,
                 UNIX_TIMESTAMP(`last_sync`) as `last_sync`,
                 UNIX_TIMESTAMP(`created_at`) as `created_at`,
                 UNIX_TIMESTAMP(`updated_at`) as `updated_at`
@@ -218,6 +230,9 @@ class DeviceICloudRecord extends AbstractRecord
         return $this->loadFromArray($data);
     }
     
+    /**
+     * @return DeviceRecord
+     */
     public function getDeviceRecord()
     {
         if($this->isNew() || !$this->devId)
