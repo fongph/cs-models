@@ -155,7 +155,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_error` = {$this->lastError},
                 `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
                 `last_sync` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastSync)}), {$this->db->quote($this->lastSync)}, NULL),
-                `last_snapshot` => IF({$this->db->quote($this->lastSnapshot)}, {$this->db->quote($this->lastSnapshot)}, NULL),
+                `last_snapshot` = NULL,
                 `created_at` = NOW()"
         );
 
