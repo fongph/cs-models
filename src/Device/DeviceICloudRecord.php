@@ -134,9 +134,9 @@ class DeviceICloudRecord extends AbstractRecord
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
-                `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
-                `last_sync` = {$this->db->quote($this->lastSync)},
-                `last_snapshot` = IF({$this->db->quote($this->lastSnapshot)}, {$this->db->quote($this->lastSnapshot)}, NULL),
+                `last_backup` = IF({$this->lastBackup}, FROM_UNIXTIME({$this->lastBackup}), NULL),
+                `last_sync` = IF({$this->lastSync}, FROM_UNIXTIME({$this->lastSync}), NULL),
+                `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -153,9 +153,9 @@ class DeviceICloudRecord extends AbstractRecord
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
-                `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
-                `last_sync` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastSync)}), {$this->db->quote($this->lastSync)}, NULL),
-                `last_snapshot` = NULL,
+                `last_backup` = IF({$this->lastBackup}, FROM_UNIXTIME({$this->lastBackup}), NULL),
+                `last_sync` = IF({$this->lastSync}, FROM_UNIXTIME({$this->lastSync}), NULL),
+                `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
                 `created_at` = NOW()"
         );
 
@@ -179,6 +179,8 @@ class DeviceICloudRecord extends AbstractRecord
         $this->devId      = (int)$this->devId;
         $this->quotaUsed  = (int)$this->quotaUsed;
         $this->lastError  = (int)$this->lastError;
+        $this->lastBackup  = (int)$this->lastBackup;
+        $this->lastSync  = (int)$this->lastSync;
         $this->check();
         
         if (!empty($this->id)) {
