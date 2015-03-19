@@ -20,6 +20,7 @@ use PDO,
  * @property integer $lastBackup
  * @property integer $lastSync
  * @property integer $quotaUsed
+ * @property string $lastSnapshot
  *
  * @method DeviceICloudRecord setId (integer $value)
  * @method DeviceICloudRecord setDevId (integer $value)
@@ -31,6 +32,18 @@ use PDO,
  * @method DeviceICloudRecord setLastSync (integer $value)
  * @method DeviceICloudRecord setLastBackup (integer $value)
  * @method DeviceICloudRecord setQuotaUsed (integer $value)
+ * @method DeviceICloudRecord setLastSnapshot (string $value)
+ *
+ * @method integer getId ()
+ * @method integer getDevId ()
+ * @method string getAppleId ()
+ * @method string getApplePassword ()
+ * @method string getDeviceHash ()
+ * @method integer getProcessing ()
+ * @method integer getLastError ()
+ * @method integer getLastSync ()
+ * @method integer getLastBackup ()
+ * @method integer getQuotaUsed ()
  *
  */
 class DeviceICloudRecord extends AbstractRecord
@@ -48,6 +61,7 @@ class DeviceICloudRecord extends AbstractRecord
         'lastSync' => 'last_sync',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
+        'lastSnapshot' => 'last_snapshot',
     );
     protected $recordProperties = array(
         'id' => null,
@@ -58,8 +72,9 @@ class DeviceICloudRecord extends AbstractRecord
         'processing' => 0,
         'lastBackup' => null,
         'lastError' => 0,
-        'lastSync' => 0,
+        'lastSync' => null,
         'quotaUsed' => null,
+        'lastSnapshot' => null,
     );
 
     public function __isset($name)
@@ -71,7 +86,7 @@ class DeviceICloudRecord extends AbstractRecord
     {
         switch(substr($name, 0, 3)) {
             case 'get':
-                $propName = substr($name, 3);
+                $propName = lcfirst(substr($name, 3));
                 if(array_key_exists($propName, $this->recordProperties))
                     return $this->recordProperties[$propName];
                 break;
@@ -90,7 +105,6 @@ class DeviceICloudRecord extends AbstractRecord
 
     public function __set($name, $value)
     {
-
         if(method_exists($this, $method = "set" . ucfirst($name)))
             $this->$method($value);
             
@@ -120,8 +134,9 @@ class DeviceICloudRecord extends AbstractRecord
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
-                `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
-                `last_sync` = {$this->db->quote($this->lastSync)},
+                `last_backup` = IF({$this->lastBackup}, FROM_UNIXTIME({$this->lastBackup}), NULL),
+                `last_sync` = IF({$this->lastSync}, FROM_UNIXTIME({$this->lastSync}), NULL),
+                `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -138,8 +153,9 @@ class DeviceICloudRecord extends AbstractRecord
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
-                `last_backup` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastBackup)}), {$this->db->quote($this->lastBackup)}, NULL),
-                `last_sync` = IF(UNIX_TIMESTAMP({$this->db->quote($this->lastSync)}), {$this->db->quote($this->lastSync)}, NULL),
+                `last_backup` = IF({$this->lastBackup}, FROM_UNIXTIME({$this->lastBackup}), NULL),
+                `last_sync` = IF({$this->lastSync}, FROM_UNIXTIME({$this->lastSync}), NULL),
+                `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
                 `created_at` = NOW()"
         );
 
@@ -163,6 +179,8 @@ class DeviceICloudRecord extends AbstractRecord
         $this->devId      = (int)$this->devId;
         $this->quotaUsed  = (int)$this->quotaUsed;
         $this->lastError  = (int)$this->lastError;
+        $this->lastBackup  = (int)$this->lastBackup;
+        $this->lastSync  = (int)$this->lastSync;
         $this->check();
         
         if (!empty($this->id)) {
@@ -183,6 +201,7 @@ class DeviceICloudRecord extends AbstractRecord
     {
         $data = $this->db->query("
             SELECT *, 
+                UNIX_TIMESTAMP(`last_backup`) as `last_backup`,
                 UNIX_TIMESTAMP(`last_sync`) as `last_sync`,
                 UNIX_TIMESTAMP(`created_at`) as `created_at`,
                 UNIX_TIMESTAMP(`updated_at`) as `updated_at`
@@ -199,6 +218,7 @@ class DeviceICloudRecord extends AbstractRecord
     {
         $data = $this->db->query("
             SELECT *, 
+                UNIX_TIMESTAMP(`last_backup`) as `last_backup`,
                 UNIX_TIMESTAMP(`last_sync`) as `last_sync`,
                 UNIX_TIMESTAMP(`created_at`) as `created_at`,
                 UNIX_TIMESTAMP(`updated_at`) as `updated_at`
@@ -212,6 +232,9 @@ class DeviceICloudRecord extends AbstractRecord
         return $this->loadFromArray($data);
     }
     
+    /**
+     * @return DeviceRecord
+     */
     public function getDeviceRecord()
     {
         if($this->isNew() || !$this->devId)
