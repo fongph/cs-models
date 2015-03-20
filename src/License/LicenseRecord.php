@@ -23,6 +23,7 @@ class LicenseRecord extends AbstractRecord
      * @var OrderProductRecord
      */
     protected $orderProduct;
+    protected $product;
     protected $userId;
     protected $productId;
     protected $orderProductId;
@@ -99,6 +100,19 @@ class LicenseRecord extends AbstractRecord
         }
 
         return null;
+    }
+
+    /**
+     * @return ProductRecord
+     */
+    public function getProduct()
+    {
+        if (is_null($this->product)) {
+            $productRecord = new ProductRecord($this->db);
+            $productRecord->load($this->productId);
+            $this->product = $productRecord;
+        }
+        return $this->product;
     }
 
     public function setUserId($id)
