@@ -70,9 +70,9 @@ class DeviceICloudRecord extends AbstractRecord
         'applePassword' => null,
         'deviceHash' => null,
         'processing' => 0,
-        'lastBackup' => null,
+        'lastBackup' => 0,
         'lastError' => 0,
-        'lastSync' => null,
+        'lastSync' => 0,
         'quotaUsed' => null,
         'lastSnapshot' => null,
     );
@@ -134,8 +134,8 @@ class DeviceICloudRecord extends AbstractRecord
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
-                `last_backup` = IF({$this->lastBackup}, FROM_UNIXTIME({$this->lastBackup}), NULL),
-                `last_sync` = IF({$this->lastSync}, FROM_UNIXTIME({$this->lastSync}), NULL),
+                `last_backup` = {$this->lastBackup},
+                `last_sync` = {$this->lastSync},
                 `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
@@ -153,8 +153,8 @@ class DeviceICloudRecord extends AbstractRecord
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
-                `last_backup` = IF({$this->lastBackup}, FROM_UNIXTIME({$this->lastBackup}), NULL),
-                `last_sync` = IF({$this->lastSync}, FROM_UNIXTIME({$this->lastSync}), NULL),
+                `last_backup` = {$this->lastBackup},
+                `last_sync` = {$this->lastSync},
                 `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
                 `created_at` = NOW()"
         );
@@ -201,8 +201,6 @@ class DeviceICloudRecord extends AbstractRecord
     {
         $data = $this->db->query("
             SELECT *, 
-                UNIX_TIMESTAMP(`last_backup`) as `last_backup`,
-                UNIX_TIMESTAMP(`last_sync`) as `last_sync`,
                 UNIX_TIMESTAMP(`created_at`) as `created_at`,
                 UNIX_TIMESTAMP(`updated_at`) as `updated_at`
             FROM `devices_icloud` 
@@ -218,8 +216,6 @@ class DeviceICloudRecord extends AbstractRecord
     {
         $data = $this->db->query("
             SELECT *, 
-                UNIX_TIMESTAMP(`last_backup`) as `last_backup`,
-                UNIX_TIMESTAMP(`last_sync`) as `last_sync`,
                 UNIX_TIMESTAMP(`created_at`) as `created_at`,
                 UNIX_TIMESTAMP(`updated_at`) as `updated_at`
             FROM `devices_icloud` 
