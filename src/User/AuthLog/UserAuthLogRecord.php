@@ -4,7 +4,8 @@ namespace CS\Models\User\AuthLog;
 
 use PDO,
     CS\Models\AbstractRecord,
-    CS\Models\User\UserRecord;
+    CS\Models\User\UserRecord,
+    CS\Models\RecordNotUpdatableException;
 
 /**
  * Description of UserAuthLogRecord
