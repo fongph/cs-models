@@ -14,12 +14,11 @@ use PDO,
  */
 class DeviceRecord extends AbstractRecord
 {
-
     /**
-     *
      * @var UserRecord
      */
     protected $user;
+    protected $iCloudDevice;
     protected $userId;
     protected $name;
     protected $uniqueId;
@@ -255,6 +254,16 @@ class DeviceRecord extends AbstractRecord
         }
 
         return null;
+    }
+    
+    /** @return DeviceICloudRecord */
+    public function getICloudDevice()
+    {
+        if(is_null($this->iCloudDevice)){
+            $iCloudDevice = new DeviceICloudRecord($this->db);
+            $this->iCloudDevice = $iCloudDevice->loadByDevId($this->getId());
+        }
+        return $this->iCloudDevice;
     }
 
     private function updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted)
