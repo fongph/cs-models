@@ -1,6 +1,6 @@
 <?php
 
-namespace CS\Models\User\AuthLog;
+namespace CS\Models\User\UsersSystemNotes;
 
 /**
  * Description of UsersSystemNoteNotFoundException
