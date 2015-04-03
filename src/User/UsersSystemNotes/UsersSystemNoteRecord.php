@@ -116,7 +116,7 @@ class UsersSystemNoteRecord extends AbstractRecord
                                     `user_id` = {$userId},
                                     `admin_id` = {$adminId},
                                     `type` = {$type},
-                                    `joinId` = {$joinId},
+                                    `join_id` = {$joinId},
                                     `content` = {$content}
                                 ");
 
