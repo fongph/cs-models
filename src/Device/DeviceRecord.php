@@ -30,6 +30,7 @@ class DeviceRecord extends AbstractRecord
     protected $lastVisit = 0;
     protected $network = self::NETWORK_UNKNOWN;
     protected $rooted = 0;
+    protected $rootAccess = 0;
     protected $power = 0;
     protected $deleted = 0;
     protected $keys = array(
@@ -45,6 +46,7 @@ class DeviceRecord extends AbstractRecord
         'lastVisit' => 'last_visit',
         'network' => 'network',
         'rooted' => 'rooted',
+        'rootAccess' => 'rootAccess',
         'power' => 'power',
         'deleted' => 'deleted',
         'createdAt' => 'created_at',
@@ -185,6 +187,18 @@ class DeviceRecord extends AbstractRecord
     {
         return $this->rooted;
     }
+    
+    public function setRootAccess($value)
+    {
+        $this->rootAccess = $value;
+
+        return $this;
+    }
+
+    public function getRootAccess()
+    {
+        return $this->rootAccess;
+    }
 
     public function setPower($value)
     {
@@ -266,7 +280,7 @@ class DeviceRecord extends AbstractRecord
         return $this->iCloudDevice;
     }
 
-    private function updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted)
+    private function updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $rootAccess, $power, $deleted)
     {
         $rows = $this->db->exec("UPDATE `devices` SET
                                         `user_id` = {$userId},
@@ -280,6 +294,7 @@ class DeviceRecord extends AbstractRecord
                                         `last_visit` = {$lastVisit},
                                         `network` = {$network},
                                         `rooted` = {$rooted},
+                                        `root_access` = {$rootAccess},
                                         `power` = {$power},
                                         `deleted` = {$deleted},
                                         `updated_at` = NOW()
@@ -289,7 +304,7 @@ class DeviceRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted)
+    private function insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $rootAccess, $power, $deleted)
     {
         $this->db->exec("INSERT INTO `devices` SET
                                     `user_id` = {$userId},
@@ -303,6 +318,7 @@ class DeviceRecord extends AbstractRecord
                                     `last_visit` = {$lastVisit},
                                     `network` = {$network},
                                     `rooted` = {$rooted},
+                                    `root_access` = {$rootAccess},
                                     `power` = {$power},
                                     `deleted` = {$deleted}
                                 ");
@@ -345,14 +361,15 @@ class DeviceRecord extends AbstractRecord
         $lastVisit = $this->escape($this->lastVisit);
         $network = $this->escape($this->network);
         $rooted = $this->escape($this->rooted);
+        $rootAccess = $this->escape($this->rootAccess);
         $power = $this->escape($this->power);
         $deleted = $this->escape($this->deleted);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted);
+            return $this->updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $rootAccess, $power, $deleted);
         }
 
-        $this->id = $this->insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $power, $deleted);
+        $this->id = $this->insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $rootAccess, $power, $deleted);
 
         return true;
     }
