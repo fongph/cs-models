@@ -77,7 +77,7 @@ class SubscriptionRecord extends AbstractRecord
 
     public function getPaymentMethod()
     {
-        return $this;
+        return $this->paymentMethod;
     }
 
     public function setReferenceNumber($value)
