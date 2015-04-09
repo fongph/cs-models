@@ -57,7 +57,7 @@ class ProductRecord extends AbstractRecord
         'updatedAt' => 'updated_at'
     );
     protected static $allowedTypes = array(self::TYPE_PACKAGE, self::TYPE_BUNDLE, self::TYPE_OPTION);
-    protected static $allowedOrigins = array(self::ORIGIN_INTERNAL, self::ORIGIN_GATEWAY, self::ORIGIN_GATEWAY_TRIAL, self::ORIGIN_INTERNAL_TRIAL);
+    protected static $allowedOrigins = array(self::ORIGIN_INTERNAL, self::ORIGIN_GATEWAY, self::ORIGIN_GATEWAY_TRIAL, self::ORIGIN_INTERNAL_TRIAL, self::ORIGIN_INTERNAL_GIFT);
 
     const TYPE_PACKAGE = 'package';
     const TYPE_BUNDLE = 'bundle';
@@ -66,6 +66,7 @@ class ProductRecord extends AbstractRecord
     const ORIGIN_GATEWAY = 'gateway';
     const ORIGIN_GATEWAY_TRIAL = 'gateway-trial';
     const ORIGIN_INTERNAL_TRIAL = 'internal-trial';
+    const ORIGIN_INTERNAL_GIFT = 'internal-gift';
 
     public function setType($type)
     {
