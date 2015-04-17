@@ -8,7 +8,8 @@ use PDO,
     CS\Models\Product\ProductRecord,
     CS\Models\RecordNotCreatedException,
     CS\Models\RecordDifferencesException,
-    CS\Models\Product\InvalidTypeException;
+    CS\Models\Product\InvalidTypeException,
+    CS\Models\Subscription\SubscriptionRecord;
 
 /**
  * Description of LicenseRecord
@@ -24,6 +25,7 @@ class LicenseRecord extends AbstractRecord
      */
     protected $orderProduct;
     protected $product;
+    protected $subscription;
     protected $userId;
     protected $productId;
     protected $orderProductId;
@@ -113,6 +115,33 @@ class LicenseRecord extends AbstractRecord
             $this->product = $productRecord;
         }
         return $this->product;
+    }
+    
+    public function hasSubscription()
+    {
+        try {
+            $this->getSubscription();
+            return true;
+        } catch (LicenseDoNotHaveSubscriptionException $e) {
+            return false;
+        }
+    }
+    
+    public function getSubscription()
+    {
+        if ($this->subscription instanceof SubscriptionRecord) {
+            return $this->subscription;
+        }
+
+        if ($this->isNew()) {
+            throw new RecordNotCreatedException("Record must be created!");
+        }
+
+        $subscription = new SubscriptionRecord($this->db);
+        
+        $this->subscription = $subscription->loadByLicenseId($this->getId());
+
+        return $this->subscription;
     }
 
     public function setUserId($id)
