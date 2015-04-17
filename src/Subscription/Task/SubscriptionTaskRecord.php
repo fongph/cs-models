@@ -86,7 +86,7 @@ class SubscriptionTaskRecord extends AbstractRecord {
 
     private function insertRecord($paymentMethod, $referenceNumber, $task)
     {
-        $this->db->exec("INSERT INTO `subscriptions_tasks` SET
+        $this->db->exec("INSERT IGNORE INTO `subscriptions_tasks` SET
                             `payment_method` = {$paymentMethod},
                             `reference_number` = {$referenceNumber},
                             `task` = {$task}
