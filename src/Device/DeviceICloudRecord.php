@@ -3,8 +3,7 @@
 namespace CS\Models\Device;
 
 use PDO,
-    CS\Models\AbstractRecord,
-    CS\Models\Device\DeviceRecord;
+    CS\Models\AbstractRecord;
 
 /**
  * Class DeviceICloudRecord
@@ -175,12 +174,12 @@ class DeviceICloudRecord extends AbstractRecord
     
     public function save()
     {
-        $this->processing = $this->processing ? 1 : 0;
-        $this->devId      = (int)$this->devId;
-        $this->quotaUsed  = (int)$this->quotaUsed;
-        $this->lastError  = (int)$this->lastError;
-        $this->lastBackup  = (int)$this->lastBackup;
-        $this->lastSync  = (int)$this->lastSync;
+        $this->processing = (int)$this->processing;
+        $this->devId = (int)$this->devId;
+        $this->quotaUsed = (int)$this->quotaUsed;
+        $this->lastError = (int)$this->lastError;
+        $this->lastBackup = (int)$this->lastBackup;
+        $this->lastSync = (int)$this->lastSync;
         $this->check();
         
         if (!empty($this->id)) {
