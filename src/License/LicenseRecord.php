@@ -59,10 +59,10 @@ class LicenseRecord extends AbstractRecord
      * 
      * @var array
      */
-    protected $allowedStatuses = array(self::STATUS_PENDING, self::STATUS_TRIAL, self::STATUS_AVAILABLE, self::STATUS_ACTIVE, self::STATUS_CANCELED, self::STATUS_INACTIVE);
+    protected $allowedStatuses = array(self::STATUS_PENDING, self::STATUS_PROMO, self::STATUS_AVAILABLE, self::STATUS_ACTIVE, self::STATUS_CANCELED, self::STATUS_INACTIVE);
 
     const STATUS_PENDING = 'pending';
-    const STATUS_TRIAL = 'trial';
+    const STATUS_PROMO = 'trial';
     const STATUS_AVAILABLE = 'available';
     const STATUS_ACTIVE = 'active';
     const STATUS_CANCELED = 'canceled';
