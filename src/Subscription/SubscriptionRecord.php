@@ -173,7 +173,7 @@ class SubscriptionRecord extends AbstractRecord
             throw new InvalidPaymentMethodException("Invalid payment method value!");
         }
         
-        if (!in_array($this->paymentMethod, self::getAllowedReasons())) {
+        if (!in_array($this->reason, self::getAllowedReasons())) {
             throw new InvalidReasonException("Invalid reason value!");
         }
     }
