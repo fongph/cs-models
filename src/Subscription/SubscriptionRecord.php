@@ -193,7 +193,7 @@ class SubscriptionRecord extends AbstractRecord
                 return false;
             }
         } else {
-            $this->id = $this->insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto);
+            $this->id = $this->insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason);
         }
 
         return true;
