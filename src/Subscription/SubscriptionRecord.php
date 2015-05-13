@@ -36,6 +36,13 @@ class SubscriptionRecord extends AbstractRecord
         'updatedAt' => 'updated_at'
     );
 
+    protected $allowedReasons = array(self::REASON_NONE, self::REASON_CANCELED_NON_PAYMENT, self::REASON_COMPLETED, self::REASON_CANCELED);
+
+    const REASON_NONE = 'none';
+    const REASON_CANCELED_NON_PAYMENT = 'canceled-non-payment';
+    const REASON_COMPLETED = 'completed';
+    const REASON_CANCELED = 'canceled';
+    
     public function setLicense(LicenseRecord $value)
     {
         if ($value->isNew()) {
@@ -149,6 +156,10 @@ class SubscriptionRecord extends AbstractRecord
         if (!in_array($this->paymentMethod, OrderRecord::getAllowedPaymentMethods())) {
             throw new InvalidPaymentMethodException("Invalid payment method value!");
         }
+        
+        if (!in_array($this->paymentMethod, self::getAllowedReasons())) {
+            throw new InvalidReasonException("Invalid reason value!");
+        }
     }
 
     public function save()
@@ -191,4 +202,9 @@ class SubscriptionRecord extends AbstractRecord
         throw new LicenseDoNotHaveSubscriptionException('Unable to load subscription record');
     }
 
+    public static function getAllowedReasons()
+    {
+        return self::$allowedReasons;
+    }
+    
 }
