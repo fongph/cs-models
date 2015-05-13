@@ -38,7 +38,7 @@ class SubscriptionRecord extends AbstractRecord
         'updatedAt' => 'updated_at'
     );
 
-    protected $allowedReasons = array(self::REASON_NONE, self::REASON_CANCELED_NON_PAYMENT, self::REASON_COMPLETED, self::REASON_CANCELED);
+    protected static $allowedReasons = array(self::REASON_NONE, self::REASON_CANCELED_NON_PAYMENT, self::REASON_COMPLETED, self::REASON_CANCELED);
 
     const REASON_NONE = 'none';
     const REASON_CANCELED_NON_PAYMENT = 'canceled-non-payment';
