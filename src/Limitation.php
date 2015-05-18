@@ -33,6 +33,8 @@ class Limitation
     const SMS_COMMANDS = 1048576;
     const INSTAGRAM = 2097152;
     const KIK = 4194304;
+    const NOTES = 8388608;
+    const SNAPCHAT = 16777216;
 
     private static $allowedOptions = array(
         self::SMS,
@@ -57,7 +59,9 @@ class Limitation
         self::OLD_DATA,
         self::SMS_COMMANDS,
         self::INSTAGRAM,
-        self::KIK
+        self::KIK,
+        self::NOTES,
+        self::SNAPCHAT
     );
     protected $value = 0;
     protected $sms = 0;
