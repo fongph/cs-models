@@ -23,12 +23,14 @@ class RefererRecord extends AbstractRecord
      */
     protected $orderId;
     protected $referer;
+    protected $landing;
     protected $ip;
    
     protected $keys = array(
         'id'        => 'id',
         'orderId'   => 'order_id',
         'referer'   => 'referer',
+        'landing'   => 'landing',
         'ip'        => 'ip',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
@@ -93,6 +95,18 @@ class RefererRecord extends AbstractRecord
         return $this->referer;
     }
     
+    public function setLanding($value)
+    {
+        $this->landing = $value;
+
+        return $this;
+    }
+
+    public function getLanding()
+    {
+        return $this->landing;
+    }
+    
     
     public function setIp($value)
     {
@@ -108,11 +122,12 @@ class RefererRecord extends AbstractRecord
     
     
     
-    private function updateRecord($orderId, $referer, $ip) 
+    private function updateRecord($orderId, $referer, $landing, $ip) 
     {
         $rows = $this->db->exec("UPDATE `orders_referers` SET
                                         `order_id` = {$orderId},
                                         `referer` = {$referer}, 
+                                        `landing` = {$landing},        
                                         `ip` = {$ip},            
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
@@ -121,11 +136,12 @@ class RefererRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord( $orderId, $referer,  $ip ) 
+    private function insertRecord( $orderId, $referer, $landing, $ip ) 
     {
         $this->db->exec("INSERT INTO `orders_referers` SET 
                             `order_id` = {$orderId},
                             `referer` = {$referer},
+                            `landing` = {$landing},    
                             `ip` = {$ip},
                             `created_at` = NOW()    
                         "); 
@@ -139,12 +155,13 @@ class RefererRecord extends AbstractRecord
         
         $orderId = $this->escape($this->orderId);
         $referer = ($this -> referer) ?  $this->escape($this->referer) : false;
+        $landing = ($this -> landing) ?  $this->escape($this->landing) : false;
         $ip = ($this->ip) ? $this->escape($this->ip) : $this->escape( IP::getRealIP() );
         
         if (!empty($this->id)) {
-            return $this->updateRecord($orderId, $referer, $ip); 
+            return $this->updateRecord($orderId, $referer, $landing, $ip); 
         } else {
-            $this->id = $this->insertRecord($orderId, $referer, $ip);
+            $this->id = $this->insertRecord($orderId, $referer, $landing, $ip);
         }
     }
 
