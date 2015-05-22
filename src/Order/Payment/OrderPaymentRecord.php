@@ -62,12 +62,13 @@ class OrderPaymentRecord extends AbstractRecord
      * 
      * @var array
      */
-    protected static $allowedTypes = array(self::TYPE_SALE, self::TYPE_PROLONGATION, self::TYPE_REFUND, self::TYPE_CHARGEBACK);
+    protected static $allowedTypes = array(self::TYPE_SALE, self::TYPE_PROLONGATION, self::TYPE_REFUND, self::TYPE_CHARGEBACK, self::TYPE_FRAUD);
 
     const TYPE_SALE = 'sale';
     const TYPE_PROLONGATION = 'prolongation';
     const TYPE_REFUND = 'refund';
     const TYPE_CHARGEBACK = 'chargeback';
+    const TYPE_FRAUD = 'fraud';
 
     public function setSiteId($id)
     {
