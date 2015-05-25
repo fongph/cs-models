@@ -26,7 +26,7 @@ class DeviceModules extends AbstractRecord {
     protected $skype;
     protected $whatsapp;
     protected $notes;
-    
+
     public static function isAllowedModule($moduleName)
     {
         return in_array($moduleName, array(
@@ -56,18 +56,18 @@ class DeviceModules extends AbstractRecord {
         'whatsapp' => 'whatsapp',
         'notes' => 'notes',
     );
-    
+
     public function setDevId($devId)
     {
         $this->devId = (int) $devId;
         return $this;
     }
-    
+
     public function getDevId()
     {
         return $this->devId;
     }
-    
+
     public function isActive($moduleName)
     {
         if (self::isAllowedModule($moduleName)) {
@@ -75,7 +75,7 @@ class DeviceModules extends AbstractRecord {
         }
         return false;
     }
-    
+
     public function setStatus($moduleName, $status)
     {
         if (self::isAllowedModule($moduleName)) {
@@ -83,7 +83,7 @@ class DeviceModules extends AbstractRecord {
         }
         return $this;
     }
-    
+
     public function save()
     {
         $this->check();
@@ -92,19 +92,19 @@ class DeviceModules extends AbstractRecord {
             $this->id = $this->insertRecord();
             return true;
         }
-        
+
         return $this->id = $this->updateRecord();
     }
-    
+
     protected function check()
     {
         if (!($this->devId = (int)$this->devId))
             throw new \Exception('Invalid Device ID!');
     }
-    
+
     public function insertRecord()
     {
-         $this->db->exec("
+        $this->db->exec("
             INSERT INTO `dev_modules`
             SET dev_id = {$this->db->quote($this->devId)},
                 calls = {$this->db->quote($this->calls)},
@@ -117,10 +117,10 @@ class DeviceModules extends AbstractRecord {
                 skype = {$this->db->quote($this->skype)},
                 whatsapp = {$this->db->quote($this->whatsapp)},
                 notes = {$this->db->quote($this->notes)}");
-        
+
         return $this->db->lastInsertId();
     }
-    
+
     public function updateRecord()
     {
         return $this->db->exec("
@@ -138,7 +138,7 @@ class DeviceModules extends AbstractRecord {
                 notes = {$this->notes}
             WHERE id = {$this->id}");
     }
-    
+
     public function load($id)
     {
         if (($data = $this->db->query("
