@@ -35,7 +35,16 @@ class Limitation
     const KIK = 4194304;
     const NOTES = 8388608;
     const SNAPCHAT = 16777216;
-
+    const SMS_DAILY_LIMIT = 33554432;
+    const APPLICATIONS_BLOCKING = 67108864;
+    const APPLICATIONS_LIMITING = 134217728;
+    const WEBSITES_BLOCKING = 268435456;
+    const SIM_CHANGE_ALERT = 536870912;
+    const REBOOT_DEVICE = 1073741824;
+    const REBOOT_APPLICATION = 2147483648;
+    const LOCK_DEVICE = 4294967296;
+    const ICLOUD = 8589934592;
+    
     private static $allowedOptions = array(
         self::SMS,
         self::CALL,
@@ -61,8 +70,18 @@ class Limitation
         self::INSTAGRAM,
         self::KIK,
         self::NOTES,
-        self::SNAPCHAT
+        self::SNAPCHAT,
+        self::SMS_DAILY_LIMIT,
+        self::APPLICATIONS_BLOCKING,
+        self::APPLICATIONS_LIMITING,
+        self::WEBSITES_BLOCKING,
+        self::SIM_CHANGE_ALERT,
+        self::REBOOT_DEVICE,
+        self::REBOOT_APPLICATION,
+        self::LOCK_DEVICE,
+        self::ICLOUD
     );
+    
     protected $value = 0;
     protected $sms = 0;
     protected $call = 0;
