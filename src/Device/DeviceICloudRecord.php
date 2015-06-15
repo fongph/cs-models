@@ -20,6 +20,8 @@ use PDO,
  * @property integer $lastSync
  * @property integer $quotaUsed
  * @property string $lastSnapshot
+ * @property integer $duration
+ * @property string $worker
  *
  * @method DeviceICloudRecord setId (integer $value)
  * @method DeviceICloudRecord setDevId (integer $value)
@@ -32,6 +34,8 @@ use PDO,
  * @method DeviceICloudRecord setLastBackup (integer $value)
  * @method DeviceICloudRecord setQuotaUsed (integer $value)
  * @method DeviceICloudRecord setLastSnapshot (string $value)
+ * @method DeviceICloudRecord setDuration (integer $value)
+ * @method DeviceICloudRecord setWorker (string $value)
  *
  * @method integer getId ()
  * @method integer getDevId ()
@@ -43,7 +47,9 @@ use PDO,
  * @method integer getLastSync ()
  * @method integer getLastBackup ()
  * @method integer getQuotaUsed ()
- *
+ * @method DeviceICloudRecord getDuration ()
+ * @method DeviceICloudRecord getWorker ()
+ * 
  */
 class DeviceICloudRecord extends AbstractRecord
 {
@@ -58,6 +64,8 @@ class DeviceICloudRecord extends AbstractRecord
         'lastError' => 'last_error',
         'lastBackup' => 'last_backup',
         'lastSync' => 'last_sync',
+        'duration' => 'duration',
+        'worker' => 'worker',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
         'lastSnapshot' => 'last_snapshot',
@@ -74,6 +82,8 @@ class DeviceICloudRecord extends AbstractRecord
         'lastSync' => 0,
         'quotaUsed' => null,
         'lastSnapshot' => null,
+        'duration' => 0,
+        'worker' => '',
     );
 
     public function __isset($name)
@@ -136,6 +146,8 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_backup` = {$this->lastBackup},
                 `last_sync` = {$this->lastSync},
                 `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
+                `duration` = {$this->db->quote($this->duration)},
+                `worker` = {$this->db->quote($this->worker)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -155,6 +167,8 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_backup` = {$this->lastBackup},
                 `last_sync` = {$this->lastSync},
                 `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
+                `duration` = {$this->db->quote($this->duration)},
+                `worker` = {$this->db->quote($this->worker)},
                 `created_at` = NOW()"
         );
 
