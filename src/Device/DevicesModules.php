@@ -2,7 +2,7 @@
 
 use CS\Models\AbstractRecord;
 
-class Modules extends AbstractRecord {
+class DevicesModules extends AbstractRecord {
 
     const MODULE_CALLS = 'calls';
     const MODULE_SMS = 'sms';
@@ -16,17 +16,17 @@ class Modules extends AbstractRecord {
     const MODULE_NOTES = 'notes';
 
     protected $devId = 0;
-    protected $calls = 0;
-    protected $sms = 0;
-    protected $bookmarks = 0;
-    protected $browserHistory = 0;
-    protected $calendar = 0;
-    protected $contacts = 0;
-    protected $photos = 0;
-    protected $skype = 0;
-    protected $whatsapp = 0;
-    protected $notes = 0;
-    
+    protected $calls  = null;
+    protected $sms  = null;
+    protected $bookmarks  = null;
+    protected $browserHistory  = null;
+    protected $calendar  = null;
+    protected $contacts  = null;
+    protected $photos  = null;
+    protected $skype  = null;
+    protected $whatsapp  = null;
+    protected $notes  = null;
+
     public static function isAllowedModule($moduleName)
     {
         return in_array($moduleName, array(
@@ -44,6 +44,7 @@ class Modules extends AbstractRecord {
     }
 
     protected $keys = array(
+        'id' => 'id',
         'devId' => 'dev_id',
         'calls' => 'calls',
         'sms' => 'sms',
@@ -56,18 +57,18 @@ class Modules extends AbstractRecord {
         'whatsapp' => 'whatsapp',
         'notes' => 'notes',
     );
-    
+
     public function setDevId($devId)
     {
         $this->devId = (int) $devId;
         return $this;
     }
-    
+
     public function getDevId()
     {
         return $this->devId;
     }
-    
+
     public function isActive($moduleName)
     {
         if (self::isAllowedModule($moduleName)) {
@@ -75,15 +76,27 @@ class Modules extends AbstractRecord {
         }
         return false;
     }
-    
+
+    public function isFound($moduleName)
+    {
+        return self::isAllowedModule($moduleName) && $this->$moduleName != 0;
+    }
+
+    public function hasError($moduleName)
+    {
+        return self::isAllowedModule($moduleName) && $this->$moduleName < 0;
+    }
+
     public function setStatus($moduleName, $status)
     {
         if (self::isAllowedModule($moduleName)) {
-            $this->$moduleName = (int) (bool) $status;
+            $this->$moduleName = $status;
+        } else {
+            throw new \Exception("Invalid Module Name '{$moduleName}'");
         }
         return $this;
     }
-    
+
     public function save()
     {
         $this->check();
@@ -92,74 +105,82 @@ class Modules extends AbstractRecord {
             $this->id = $this->insertRecord();
             return true;
         }
-        
+
         return $this->id = $this->updateRecord();
     }
-    
+
     protected function check()
     {
         if (!($this->devId = (int)$this->devId))
             throw new \Exception('Invalid Device ID!');
     }
-    
+
     public function insertRecord()
     {
-         $this->db->exec("
-            INSERT INTO `modules`
+        $this->db->exec("
+            INSERT INTO `devices_modules`
             SET dev_id = {$this->db->quote($this->devId)},
-                calls = {$this->db->quote($this->calls)},
-                sms = {$this->db->quote($this->sms)},
-                bookmarks = {$this->db->quote($this->bookmarks)},
-                browser_history = {$this->db->quote($this->browserHistory)},
-                calendar = {$this->db->quote($this->calendar)},
-                contacts = {$this->db->quote($this->contacts)},
-                photos = {$this->db->quote($this->photos)},
-                skype = {$this->db->quote($this->skype)},
-                whatsapp = {$this->db->quote($this->whatsapp)},
-                notes = {$this->db->quote($this->notes)}");
-        
+                calls = {$this->quoteOrNull($this->calls)},
+                sms = {$this->quoteOrNull($this->sms)},
+                bookmarks = {$this->quoteOrNull($this->bookmarks)},
+                browser_history = {$this->quoteOrNull($this->browserHistory)},
+                calendar = {$this->quoteOrNull($this->calendar)},
+                contacts = {$this->quoteOrNull($this->contacts)},
+                photos = {$this->quoteOrNull($this->photos)},
+                skype = {$this->quoteOrNull($this->skype)},
+                whatsapp = {$this->quoteOrNull($this->whatsapp)},
+                notes = {$this->quoteOrNull($this->notes)}");
+
         return $this->db->lastInsertId();
     }
-    
+
+    protected function quoteOrNull($value, $parameter_type = \PDO::PARAM_STR)
+    {
+        if (is_null($value)) {
+            return 'NULL';
+        } else return $this->db->quote($value, $parameter_type);
+    }
+
+
     public function updateRecord()
     {
         return $this->db->exec("
-            UPDATE `modules`
+            UPDATE `devices_modules`
             SET dev_id = {$this->db->quote($this->devId)},
-                calls = {$this->calls},
-                sms = {$this->sms},
-                bookmarks = {$this->bookmarks},
-                browser_history = {$this->browserHistory},
-                calendar = {$this->calendar},
-                contacts = {$this->contacts},
-                photos = {$this->photos},
-                skype = {$this->skype},
-                whatsapp = {$this->whatsapp},
-                notes = {$this->notes}
+                calls = {$this->quoteOrNull($this->calls)},
+                sms = {$this->quoteOrNull($this->sms)},
+                bookmarks = {$this->quoteOrNull($this->bookmarks)},
+                browser_history = {$this->quoteOrNull($this->browserHistory)},
+                calendar = {$this->quoteOrNull($this->calendar)},
+                contacts = {$this->quoteOrNull($this->contacts)},
+                photos = {$this->quoteOrNull($this->photos)},
+                skype = {$this->quoteOrNull($this->skype)},
+                whatsapp = {$this->quoteOrNull($this->whatsapp)},
+                notes = {$this->quoteOrNull($this->notes)}
             WHERE id = {$this->id}");
     }
-    
+
     public function load($id)
     {
         if (($data = $this->db->query("
                 SELECT *
-                FROM `modules`
+                FROM `devices_modules`
                 WHERE `id` = {$this->db->quote($id)} LIMIT 1")->fetch(\PDO::FETCH_ASSOC)) != false) {
             return $this->loadFromArray($data);
         }
 
-        throw new DeviceNotFoundException('Unable to load order record');
+        throw new \Exception('Unable to load device modules record');
     }
 
     public function loadDevId($id)
     {
         if (($data = $this->db->query("
                 SELECT *
-                FROM `modules`
+                FROM `devices_modules`
                 WHERE `dev_id` = {$this->db->quote($id)} LIMIT 1")->fetch(\PDO::FETCH_ASSOC)) != false) {
             return $this->loadFromArray($data);
         }
 
-        throw new DeviceNotFoundException('Unable to load order record');
+        throw new \Exception('Unable to load device modules record');
     }
 } 
