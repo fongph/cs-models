@@ -2,7 +2,7 @@
 
 use CS\Models\AbstractRecord;
 
-class DevicesModules extends AbstractRecord {
+class DeviceModulesRecord extends AbstractRecord {
 
     const MODULE_CALLS = 'calls';
     const MODULE_SMS = 'sms';
