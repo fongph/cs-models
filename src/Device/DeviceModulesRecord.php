@@ -14,6 +14,18 @@ class DeviceModulesRecord extends AbstractRecord {
     const MODULE_SKYPE = 'skype';
     const MODULE_WHATSAPP = 'whatsapp';
     const MODULE_NOTES = 'notes';
+    protected static $validModules = array(
+        self::MODULE_CALLS,
+        self::MODULE_SMS,
+        self::MODULE_BOOKMARKS,
+        self::MODULE_BROWSER_HISTORY,
+        self::MODULE_CALENDAR,
+        self::MODULE_CONTACTS,
+        self::MODULE_PHOTOS,
+        self::MODULE_SKYPE,
+        self::MODULE_WHATSAPP,
+        self::MODULE_NOTES,
+    );
 
     protected $devId = 0;
     protected $calls  = null;
@@ -26,37 +38,21 @@ class DeviceModulesRecord extends AbstractRecord {
     protected $skype  = null;
     protected $whatsapp  = null;
     protected $notes  = null;
-
-    public static function isAllowedModule($moduleName)
-    {
-        return in_array($moduleName, array(
-            self::MODULE_CALLS,
-            self::MODULE_SMS,
-            self::MODULE_BOOKMARKS,
-            self::MODULE_BROWSER_HISTORY,
-            self::MODULE_CALENDAR,
-            self::MODULE_CONTACTS,
-            self::MODULE_PHOTOS,
-            self::MODULE_SKYPE,
-            self::MODULE_WHATSAPP,
-            self::MODULE_NOTES,
-        ));
-    }
-
     protected $keys = array(
         'id' => 'id',
         'devId' => 'dev_id',
-        'calls' => 'calls',
-        'sms' => 'sms',
-        'bookmarks' => 'bookmarks',
-        'browserHistory' => 'browser_history',
-        'calendar' => 'calendar',
-        'contacts' => 'contacts',
-        'photos' => 'photos',
-        'skype' => 'skype',
-        'whatsapp' => 'whatsapp',
-        'notes' => 'notes',
+        self::MODULE_CALLS => 'calls',
+        self::MODULE_SMS => 'sms',
+        self::MODULE_BOOKMARKS => 'bookmarks',
+        self::MODULE_BROWSER_HISTORY => 'browser_history',
+        self::MODULE_CALENDAR => 'calendar',
+        self::MODULE_CONTACTS => 'contacts',
+        self::MODULE_PHOTOS => 'photos',
+        self::MODULE_SKYPE => 'skype',
+        self::MODULE_WHATSAPP => 'whatsapp',
+        self::MODULE_NOTES => 'notes',
     );
+    protected $prevValues = array();
 
     public function setDevId($devId)
     {
@@ -68,29 +64,51 @@ class DeviceModulesRecord extends AbstractRecord {
     {
         return $this->devId;
     }
-
-    public function isActive($moduleName)
+    
+    public static function getValidModules()
     {
-        if (self::isAllowedModule($moduleName)) {
+        return self::$validModules;
+    }
+
+    public function isModuleActive($moduleName)
+    {
+        if (in_array($moduleName, self::$validModules)) {
             return $this->$moduleName;
         }
         return false;
     }
 
-    public function isFound($moduleName)
+    public function isModuleFound($moduleName)
     {
-        return self::isAllowedModule($moduleName) && $this->$moduleName != 0;
+        return in_array($moduleName, self::$validModules) && $this->$moduleName != 0;
     }
 
-    public function hasError($moduleName)
+    public function hasModuleError($moduleName)
     {
-        return self::isAllowedModule($moduleName) && $this->$moduleName < 0;
+        return in_array($moduleName, self::$validModules) && $this->$moduleName < 0;
     }
 
-    public function setStatus($moduleName, $status)
+    public function getModuleErrorCode($moduleName)
     {
-        if (self::isAllowedModule($moduleName)) {
-            $this->$moduleName = $status;
+        if (in_array($moduleName, self::$validModules)) {
+            if ($this->$moduleName < 0) {
+                return -$this->$moduleName;
+            } else {
+                return false;
+            }
+        } else {
+            throw new \Exception("Invalid Module Name '{$moduleName}'");
+        }
+    }
+    
+    public function setModuleStatus($moduleName, $status)
+    {
+        if (in_array($moduleName, self::$validModules)) {
+            $status = (int) $status;
+            if ($this->$moduleName !== $status) {
+                $this->prevValues[$moduleName] = $this->$moduleName;
+                $this->$moduleName = $status;
+            }
         } else {
             throw new \Exception("Invalid Module Name '{$moduleName}'");
         }
@@ -141,7 +159,6 @@ class DeviceModulesRecord extends AbstractRecord {
         } else return $this->db->quote($value, $parameter_type);
     }
 
-
     public function updateRecord()
     {
         return $this->db->exec("
@@ -172,7 +189,7 @@ class DeviceModulesRecord extends AbstractRecord {
         throw new \Exception('Unable to load device modules record');
     }
 
-    public function loadDevId($id)
+    public function loadByDevId($id)
     {
         if (($data = $this->db->query("
                 SELECT *
@@ -182,5 +199,52 @@ class DeviceModulesRecord extends AbstractRecord {
         }
 
         throw new \Exception('Unable to load device modules record');
+    }
+
+    public function loadFromArray(array $data)
+    {
+        foreach ($this->keys as $classPropName => $dbFieldName) {
+            if (isset($data[$dbFieldName])) {
+                if (in_array($classPropName, self::$validModules)) {
+                    $this->$classPropName = (int) $data[$dbFieldName];
+                } else {
+                    $this->$classPropName = $data[$dbFieldName]; 
+                }
+            }
+        }
+        return $this;
+    }
+
+    public function getNewModules()
+    {
+        $modules = array();
+        foreach ($this->prevValues as $attr => $prevValue) {
+            if ($this->$attr > 0 && $prevValue !== $this->$attr) {
+                $modules[] = $attr;
+            }
+        }
+        return $modules;
+    }
+
+    public function getNewModuleErrors()
+    {
+        $errors = array();
+        foreach ($this->prevValues as $attr => $prevValue) {
+            if ($this->$attr < 0 && $prevValue !== $this->$attr) {
+                $errors[$attr] = $this->getModuleErrorCode($attr);
+            }
+        }
+        return $errors;
+    }
+
+    public function getNewFixedModules()
+    {
+        $fixes = array();
+        foreach ($this->prevValues as $attr => $prevValue) {
+            if ($prevValue < 0 && $this->$attr > 0) {
+                $fixes[] = $attr;
+            }
+        }
+        return $fixes;
     }
 } 
