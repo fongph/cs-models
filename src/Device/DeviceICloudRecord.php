@@ -53,6 +53,7 @@ use PDO,
  */
 class DeviceICloudRecord extends AbstractRecord
 {
+    protected $deviceRecord;
     protected $keys = array(
         'id' => 'id',
         'devId' => 'dev_id',
@@ -246,13 +247,16 @@ class DeviceICloudRecord extends AbstractRecord
      */
     public function getDeviceRecord()
     {
-        if($this->isNew() || !$this->devId)
+        
+        if ($this->isNew() || !$this->devId)
             return null;
         
+        if ($this->deviceRecord instanceof DeviceRecord) 
+            return $this->deviceRecord;
         
-        return (new DeviceRecord($this->db))
-            ->load($this->devId);
+        $deviceRecord = new DeviceRecord($this->db);
         
+        return $this->deviceRecord = $deviceRecord->load($this->devId);
     }
 
 }
