@@ -69,18 +69,15 @@ class DeviceModulesRecord extends AbstractRecord {
     {
         return self::$validModules;
     }
-
-    public function isModuleActive($moduleName)
+    
+    public function isModuleChecked($moduleName)
     {
-        if (in_array($moduleName, self::$validModules)) {
-            return $this->$moduleName;
-        }
-        return false;
+        return in_array($moduleName, self::$validModules) && !is_null($this->$moduleName);
     }
 
     public function isModuleFound($moduleName)
     {
-        return in_array($moduleName, self::$validModules) && $this->$moduleName != 0;
+        return in_array($moduleName, self::$validModules) && $this->$moduleName > 0;
     }
 
     public function hasModuleError($moduleName)
@@ -91,14 +88,11 @@ class DeviceModulesRecord extends AbstractRecord {
     public function getModuleErrorCode($moduleName)
     {
         if (in_array($moduleName, self::$validModules)) {
-            if ($this->$moduleName < 0) {
+            if ($this->$moduleName < 0) 
                 return -$this->$moduleName;
-            } else {
-                return false;
-            }
-        } else {
-            throw new \Exception("Invalid Module Name '{$moduleName}'");
         }
+        
+        return false;
     }
     
     public function setModuleStatus($moduleName, $status)
