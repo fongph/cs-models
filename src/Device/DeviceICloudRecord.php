@@ -53,6 +53,54 @@ use PDO,
  */
 class DeviceICloudRecord extends AbstractRecord
 {
+    const ERROR_NONE = 0;
+    const ERROR_AUTHENTICATION = 1;
+
+    const ERROR_NO_BACKUPS = 2;
+    const ERROR_DIRECTORY_EXIST = 3;
+    const ERROR_INVALID_OUTPUT_DIR = 4;
+    const ERROR_UNDEFINED_ON_DOWNLOAD = 5;
+    const ERROR_INVALID_PYTHON_RESULT = 8;
+    const ERROR_UNDEFINED_PYTHON = 9;
+
+    const ERROR_DEVICE_NOT_FOUND_ON_ICLOUD = 11;
+    const ERROR_INVALID_QUEUE_DATA = 12;
+    const ERROR_PARSE = 13;
+
+    const ERROR_ADD_QUEUE_TASK = 14;
+    const ERROR_UNDEFINED = 15;
+    const ERROR_UNDEFINED_ON_CRON = 16;
+
+    const ERROR_ICLOUD_DECODING = 100;
+    const ERROR_CHUNK_TIMEOUT = 110;
+    const ERROR_TIMEOUT = 111;
+    const ERROR_EMPTY_DB = 160;
+
+    protected static $validErrors = array(
+        self::ERROR_NONE,
+        self::ERROR_AUTHENTICATION,
+        self::ERROR_NO_BACKUPS,
+        self::ERROR_DIRECTORY_EXIST,
+        self::ERROR_INVALID_OUTPUT_DIR,
+        self::ERROR_UNDEFINED_ON_DOWNLOAD,
+        self::ERROR_INVALID_PYTHON_RESULT,
+        self::ERROR_UNDEFINED_PYTHON,
+        self::ERROR_INVALID_QUEUE_DATA,
+        self::ERROR_PARSE,
+    );
+
+    protected static $errorNames = array(
+        self::ERROR_ICLOUD_DECODING => 'iCloud Decoding',
+        self::ERROR_CHUNK_TIMEOUT => 'Downloading Chunk Timeout',
+    );
+
+    protected static $acceptableErrors = array(
+        self::ERROR_NONE,
+        self::ERROR_CHUNK_TIMEOUT,
+        self::ERROR_ICLOUD_DECODING,
+        self::ERROR_EMPTY_DB,
+    );
+    
     protected $deviceRecord;
     protected $keys = array(
         'id' => 'id',
@@ -257,6 +305,21 @@ class DeviceICloudRecord extends AbstractRecord
         $deviceRecord = new DeviceRecord($this->db);
         
         return $this->deviceRecord = $deviceRecord->load($this->devId);
+    }
+
+    public static function isFatalError($errorCode)
+    {
+        return !in_array((int)$errorCode, self::$acceptableErrors);
+    }
+
+    public static function getErrorName($errorCode)
+    {
+        if (isset(self::$errorNames[$errorCode])) {
+            $name = ' '.self::$errorNames[$errorCode];
+        } else {
+            $name = '';
+        }
+        return "#{$errorCode}{$name}";
     }
 
 }
