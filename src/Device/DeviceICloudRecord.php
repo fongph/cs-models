@@ -20,6 +20,8 @@ use PDO,
  * @property integer $lastSync
  * @property integer $quotaUsed
  * @property string $lastSnapshot
+ * @property integer $duration
+ * @property string $worker
  *
  * @method DeviceICloudRecord setId (integer $value)
  * @method DeviceICloudRecord setDevId (integer $value)
@@ -32,6 +34,8 @@ use PDO,
  * @method DeviceICloudRecord setLastBackup (integer $value)
  * @method DeviceICloudRecord setQuotaUsed (integer $value)
  * @method DeviceICloudRecord setLastSnapshot (string $value)
+ * @method DeviceICloudRecord setDuration (integer $value)
+ * @method DeviceICloudRecord setWorker (string $value)
  *
  * @method integer getId ()
  * @method integer getDevId ()
@@ -43,10 +47,49 @@ use PDO,
  * @method integer getLastSync ()
  * @method integer getLastBackup ()
  * @method integer getQuotaUsed ()
- *
+ * @method DeviceICloudRecord getDuration ()
+ * @method DeviceICloudRecord getWorker ()
+ * 
  */
 class DeviceICloudRecord extends AbstractRecord
 {
+    const PROCESS_AWAITING = 0;
+    const PROCESS_IMPORT = 1;
+    const PROCESS_FIRST_COMMIT = 2;
+
+    const ERROR_NONE = 0;
+    const ERROR_AUTHENTICATION = 1;
+
+    const ERROR_NO_BACKUPS = 2;
+    const ERROR_DIRECTORY_EXIST = 3;
+    const ERROR_INVALID_OUTPUT_DIR = 4;
+    const ERROR_UNDEFINED_ON_DOWNLOAD = 5;
+    const ERROR_INVALID_PYTHON_RESULT = 8;
+    const ERROR_UNDEFINED_PYTHON = 9;
+
+    const ERROR_DEVICE_NOT_FOUND_ON_ICLOUD = 11;
+    const ERROR_INVALID_QUEUE_DATA = 12;
+    const ERROR_PARSE = 13;
+
+    const ERROR_ADD_QUEUE_TASK = 14;
+    const ERROR_UNDEFINED = 15;
+    const ERROR_UNDEFINED_ON_CRON = 16;
+
+    //not fatal errors with 3 digits
+    const ERROR_BACKUP_DECODING = 100;
+
+    const ERROR_LOADING_CHUNK_TIMEOUT = 110;
+    const ERROR_TIMEOUT = 111;
+
+    const ERROR_EMPTY_DB_FILE = 160;
+    const ERROR_NO_DATA = 161;
+
+    protected static $errorNames = array(
+        self::ERROR_BACKUP_DECODING => 'iCloud Decoding',
+        self::ERROR_LOADING_CHUNK_TIMEOUT => 'Downloading Chunk Timeout',
+    );
+
+    protected $deviceRecord;
     protected $keys = array(
         'id' => 'id',
         'devId' => 'dev_id',
@@ -58,6 +101,8 @@ class DeviceICloudRecord extends AbstractRecord
         'lastError' => 'last_error',
         'lastBackup' => 'last_backup',
         'lastSync' => 'last_sync',
+        'duration' => 'duration',
+        'worker' => 'worker',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
         'lastSnapshot' => 'last_snapshot',
@@ -74,6 +119,8 @@ class DeviceICloudRecord extends AbstractRecord
         'lastSync' => 0,
         'quotaUsed' => null,
         'lastSnapshot' => null,
+        'duration' => 0,
+        'worker' => '',
     );
 
     public function __isset($name)
@@ -89,7 +136,7 @@ class DeviceICloudRecord extends AbstractRecord
                 if(array_key_exists($propName, $this->recordProperties))
                     return $this->recordProperties[$propName];
                 break;
-            
+
             case 'set':
                 $propName = lcfirst(substr($name, 3));
                 if(array_key_exists($propName, $this->recordProperties)){
@@ -106,7 +153,7 @@ class DeviceICloudRecord extends AbstractRecord
     {
         if(method_exists($this, $method = "set" . ucfirst($name)))
             $this->$method($value);
-            
+
         elseif(array_key_exists($name, $this->recordProperties))
             $this->recordProperties[$name] = $value;
     }
@@ -115,7 +162,7 @@ class DeviceICloudRecord extends AbstractRecord
     {
         if(method_exists($this, $method = "get" . ucfirst($name)))
             return $this->$method();
-        
+
         if(array_key_exists($name, $this->recordProperties))
             return $this->recordProperties[$name];
 
@@ -136,6 +183,8 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_backup` = {$this->lastBackup},
                 `last_sync` = {$this->lastSync},
                 `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
+                `duration` = {$this->db->quote($this->duration)},
+                `worker` = {$this->db->quote($this->worker)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -155,23 +204,25 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_backup` = {$this->lastBackup},
                 `last_sync` = {$this->lastSync},
                 `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
+                `duration` = {$this->db->quote($this->duration)},
+                `worker` = {$this->db->quote($this->worker)},
                 `created_at` = NOW()"
         );
 
         return $this->db->lastInsertId();
     }
-    
+
     public function check()
     {
         $checkStatus = is_numeric($this->devId)
             && !empty($this->appleId)
             && !empty($this->applePassword)
             && !empty($this->deviceHash);
-        if($checkStatus) 
+        if($checkStatus)
             return true;
-        else throw new InvalidICloudParamsException; 
+        else throw new \Exception('Invalid iCloud Record Params');
     }
-    
+
     public function save()
     {
         $this->processing = (int)$this->processing;
@@ -181,7 +232,7 @@ class DeviceICloudRecord extends AbstractRecord
         $this->lastBackup = (int)$this->lastBackup;
         $this->lastSync = (int)$this->lastSync;
         $this->check();
-        
+
         if (!empty($this->id)) {
             return $this->updateRecord();
         }
@@ -226,22 +277,37 @@ class DeviceICloudRecord extends AbstractRecord
 
         return $this->loadFromArray($data);
     }
-    
+
     /**
      * @return DeviceRecord
      */
     public function getDeviceRecord()
     {
-        if($this->isNew() || !$this->devId)
+
+        if ($this->isNew() || !$this->devId)
             return null;
-        
-        
-        return (new DeviceRecord($this->db))
-            ->load($this->devId);
-        
+
+        if ($this->deviceRecord instanceof DeviceRecord)
+            return $this->deviceRecord;
+
+        $deviceRecord = new DeviceRecord($this->db);
+
+        return $this->deviceRecord = $deviceRecord->load($this->devId);
+    }
+
+    public static function isFatalError($errorCode)
+    {
+        return $errorCode > 0 && $errorCode < 100;
+    }
+
+    public static function getErrorName($errorCode)
+    {
+        if (isset(self::$errorNames[$errorCode])) {
+            $name = ' '.self::$errorNames[$errorCode];
+        } else {
+            $name = '';
+        }
+        return "#{$errorCode}{$name}";
     }
 
 }
-
-
-class InvalidICloudParamsException extends \Exception { }
