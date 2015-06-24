@@ -83,6 +83,7 @@ class DeviceICloudRecord extends AbstractRecord
 
     const ERROR_EMPTY_DB_FILE = 160;
     const ERROR_NO_DATA = 161;
+    const ERROR_UNDEFINED_PHP = 200;
 
     protected static $errorNames = array(
         self::ERROR_BACKUP_DECODING => 'iCloud Decoding',
