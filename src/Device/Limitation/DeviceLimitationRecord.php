@@ -23,12 +23,16 @@ class DeviceLimitationRecord extends AbstractRecord
     protected $sms = 0;
     protected $call = 0;
     protected $value = 0;
+    protected $savedSms;
+    protected $savedCall;
     protected $keys = array(
         'id' => 'id',
         'deviceId' => 'device_id',
         'sms' => 'sms',
         'call' => 'call',
         'value' => 'value',
+        'savedSms' => 'saved_sms',
+        'savedCall' => 'saved_call',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -82,6 +86,30 @@ class DeviceLimitationRecord extends AbstractRecord
 
         return $this;
     }
+    
+    public function getSavedSms()
+    {
+        return $this->savedSms;
+    }
+
+    public function setSavedSms($value)
+    {
+        $this->savedSms = $value;
+
+        return $this;
+    }
+
+    public function getSavedCall()
+    {
+        return $this->savedCall;
+    }
+
+    public function setSavedCall($value)
+    {
+        $this->savedCall = $value;
+
+        return $this;
+    }
 
     public function setDevice(DeviceRecord $value)
     {
@@ -116,13 +144,15 @@ class DeviceLimitationRecord extends AbstractRecord
         return null;
     }
 
-    private function updateRecord($deviceId, $sms, $call, $value)
+    private function updateRecord($deviceId, $sms, $call, $value, $savedSms, $savedCall)
     {
         $rows = $this->db->exec("UPDATE `devices_limitations` SET
                                         `device_id` = {$deviceId},
                                         `sms` = {$sms},
                                         `call` = {$call},
                                         `value` = {$value},
+                                        `saved_sms` = {$savedSms},
+                                        `saved_call` = {$savedCall},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -130,13 +160,15 @@ class DeviceLimitationRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($deviceId, $sms, $call, $value)
+    private function insertRecord($deviceId, $sms, $call, $value, $savedSms, $savedCall)
     {
         $this->db->exec("INSERT INTO `devices_limitations` SET
                             `device_id` = {$deviceId},
                             `sms` = {$sms},
                             `call` = {$call},
-                            `value` = {$value}
+                            `value` = {$value},
+                            `saved_sms` = {$savedSms},
+                            `saved_call` = {$savedCall}
                         ");
 
         return $this->db->lastInsertId();
@@ -162,11 +194,13 @@ class DeviceLimitationRecord extends AbstractRecord
         $sms = $this->escape($this->sms);
         $call = $this->escape($this->call);
         $value = $this->escape($this->value);
+        $savedSms = $this->escape($this->savedSms, 'NULL');
+        $savedCall = $this->escape($this->savedCall, 'NULL');
 
         if (!empty($this->id)) {
-            return $this->updateRecord($deviceId, $sms, $call, $value);
+            return $this->updateRecord($deviceId, $sms, $call, $value, $savedSms, $savedCall);
         } else {
-            $this->id = $this->insertRecord($deviceId, $sms, $call, $value);
+            $this->id = $this->insertRecord($deviceId, $sms, $call, $value, $savedSms, $savedCall);
         }
     }
 
