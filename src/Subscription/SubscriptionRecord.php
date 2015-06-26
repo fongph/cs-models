@@ -163,6 +163,18 @@ class SubscriptionRecord extends AbstractRecord
     {
         return $this->reason;
     }
+    
+    public function setNextDunningStep($value)
+    {
+        $this->nextDunningStep = $value;
+
+        return $this;
+    }
+
+    public function getNextDunningStep()
+    {
+        return $this->nextDunningStep;
+    }
 
     private function updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep)
     {
