@@ -200,7 +200,7 @@ class SubscriptionRecord extends AbstractRecord
                             `reference_number` = {$referenceNumber},
                             `auto` = {$auto},
                             `reason` = {$reason},
-                            `next_dunning_step` = {$nextDunningStep},
+                            `next_dunning_step` = {$nextDunningStep}
                         ");
 
         return $this->db->lastInsertId();
