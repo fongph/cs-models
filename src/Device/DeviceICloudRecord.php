@@ -22,6 +22,9 @@ use PDO,
  * @property string $lastSnapshot
  * @property integer $duration
  * @property string $worker
+ * @property string $lastPhoto
+ * @property integer $photoSync
+ * @property integer $photoDuration
  *
  * @method DeviceICloudRecord setId (integer $value)
  * @method DeviceICloudRecord setDevId (integer $value)
@@ -36,6 +39,9 @@ use PDO,
  * @method DeviceICloudRecord setLastSnapshot (string $value)
  * @method DeviceICloudRecord setDuration (integer $value)
  * @method DeviceICloudRecord setWorker (string $value)
+ * @method DeviceICloudRecord setLastPhoto (string $value)
+ * @method DeviceICloudRecord setPhotoSync (string $value)
+ * @method DeviceICloudRecord setPhotoDuration (string $value)
  *
  * @method integer getId ()
  * @method integer getDevId ()
@@ -47,8 +53,11 @@ use PDO,
  * @method integer getLastSync ()
  * @method integer getLastBackup ()
  * @method integer getQuotaUsed ()
- * @method DeviceICloudRecord getDuration ()
- * @method DeviceICloudRecord getWorker ()
+ * @method integer getDuration ()
+ * @method string getWorker ()
+ * @method string getLastPhoto ()
+ * @method integer getPhotoSync ()
+ * @method integer getPhotoDuration ()
  * 
  */
 class DeviceICloudRecord extends AbstractRecord
@@ -84,6 +93,8 @@ class DeviceICloudRecord extends AbstractRecord
     const ERROR_EMPTY_DB_FILE = 160;
     const ERROR_NO_DATA = 161;
     const ERROR_UNDEFINED_PHP = 200;
+    const ERROR_AMAZON_UPLOAD = 211;
+    const ERROR_CANT_SAVE_PHOTO = 212;
 
     protected static $errorNames = array(
         self::ERROR_BACKUP_DECODING => 'iCloud Decoding',
@@ -107,6 +118,9 @@ class DeviceICloudRecord extends AbstractRecord
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
         'lastSnapshot' => 'last_snapshot',
+        'lastPhoto' => 'last_photo',
+        'photoSync' => 'photo_sync',
+        'photoDuration' => 'photo_duration',
     );
     protected $recordProperties = array(
         'id' => null,
@@ -122,6 +136,9 @@ class DeviceICloudRecord extends AbstractRecord
         'lastSnapshot' => null,
         'duration' => 0,
         'worker' => '',
+        'lastPhoto' => '',
+        'photoSync' => 0,
+        'photoDuration' => 0,
     );
 
     public function __isset($name)
@@ -185,6 +202,9 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_sync` = {$this->lastSync},
                 `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
                 `duration` = {$this->db->quote($this->duration)},
+                `last_photo` = {$this->db->quote($this->lastPhoto)},
+                `photo_sync` = {$this->db->quote($this->photoSync)},
+                `photo_duration` = {$this->db->quote($this->photoDuration)},
                 `worker` = {$this->db->quote($this->worker)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
@@ -206,6 +226,9 @@ class DeviceICloudRecord extends AbstractRecord
                 `last_sync` = {$this->lastSync},
                 `last_snapshot` = {$this->db->quote($this->lastSnapshot)},
                 `duration` = {$this->db->quote($this->duration)},
+                `last_photo` = {$this->db->quote($this->lastPhoto)},
+                `photo_sync` = {$this->db->quote($this->photoSync)},
+                `photo_duration` = {$this->db->quote($this->photoDuration)},
                 `worker` = {$this->db->quote($this->worker)},
                 `created_at` = NOW()"
         );
