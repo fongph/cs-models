@@ -84,6 +84,15 @@ class DeviceModulesRecord extends AbstractRecord {
     {
         return in_array($moduleName, self::$validModules) && $this->$moduleName < 0;
     }
+    
+    public function hasErrors()
+    {
+        foreach (self::$validModules as $moduleName) {
+            if ($this->$moduleName < 0)
+                return true;
+        }
+        return false;
+    }
 
     public function getModuleErrorCode($moduleName)
     {
@@ -192,7 +201,7 @@ class DeviceModulesRecord extends AbstractRecord {
             return $this->loadFromArray($data);
         }
 
-        throw new \Exception('Unable to load device modules record');
+        throw new \Exception("Unable to load device modules record dev_id #$id");
     }
 
     public function loadFromArray(array $data)

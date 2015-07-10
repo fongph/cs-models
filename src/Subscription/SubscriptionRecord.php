@@ -27,6 +27,7 @@ class SubscriptionRecord extends AbstractRecord
     protected $referenceNumber;
     protected $auto = 0;
     protected $reason = self::REASON_NONE;
+    protected $nextDunningStep = self::NEXT_DUNNING_STEP_FIRST_FOLLOWUP;
     protected $keys = array(
         'id' => 'id',
         'licenseId' => 'license_id',
@@ -34,17 +35,41 @@ class SubscriptionRecord extends AbstractRecord
         'referenceNumber' => 'reference_number',
         'auto' => 'auto',
         'reason' => 'reason',
+        'nextDunningStep' => 'next_dunning_step',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
-
     protected static $allowedReasons = array(self::REASON_NONE, self::REASON_CANCELED_NON_PAYMENT, self::REASON_COMPLETED, self::REASON_CANCELED);
+    protected static $allowedNextDunningSteps = array(
+        self::NEXT_DUNNING_STEP_FIRST_FOLLOWUP,
+        self::NEXT_DUNNING_STEP_THREE_DAY_CANCEL,
+        self::NEXT_DUNNING_STEP_FIVE_DAY_CANCEL,
+        self::NEXT_DUNNING_STEP_SEVEN_DAY_CANCEL,
+        self::NEXT_DUNNING_STEP_FOURTEEN_DAY_CANCEL,
+        self::NEXT_DUNNING_STEP_TWENTY_ONE_DAY_CANCEL,
+        self::NEXT_DUNNING_STEP_THREE_DAY_REMINDER,
+        self::NEXT_DUNNING_STEP_FIVE_DAY_REMINDER,
+        self::NEXT_DUNNING_STEP_SEVEN_DAY_REMINDER,
+        self::NEXT_DUNNING_STEP_FOURTEEN_DAY_REMINDER,
+        self::NEXT_DUNNING_STEP_TWENTY_ONE_DAY_REMINDER
+    );
 
     const REASON_NONE = 'none';
     const REASON_CANCELED_NON_PAYMENT = 'canceled-non-payment';
     const REASON_COMPLETED = 'completed';
     const REASON_CANCELED = 'canceled';
-    
+    const NEXT_DUNNING_STEP_FIRST_FOLLOWUP = 'first-followup';
+    const NEXT_DUNNING_STEP_THREE_DAY_CANCEL = 'three-day-cancel';
+    const NEXT_DUNNING_STEP_FIVE_DAY_CANCEL = 'five-day-cancel';
+    const NEXT_DUNNING_STEP_SEVEN_DAY_CANCEL = 'seven-day-cancel';
+    const NEXT_DUNNING_STEP_FOURTEEN_DAY_CANCEL = 'fourteen-day-cancel';
+    const NEXT_DUNNING_STEP_TWENTY_ONE_DAY_CANCEL = 'twenty-one-day-cancel';
+    const NEXT_DUNNING_STEP_THREE_DAY_REMINDER = 'three-day-reminder';
+    const NEXT_DUNNING_STEP_FIVE_DAY_REMINDER = 'five-day-reminder';
+    const NEXT_DUNNING_STEP_SEVEN_DAY_REMINDER = 'seven-day-reminder';
+    const NEXT_DUNNING_STEP_FOURTEEN_DAY_REMINDER = 'fourteen-day-reminder';
+    const NEXT_DUNNING_STEP_TWENTY_ONE_DAY_REMINDER = 'twenty-one-day-reminder';
+
     public function setLicense(LicenseRecord $value)
     {
         if ($value->isNew()) {
@@ -102,7 +127,7 @@ class SubscriptionRecord extends AbstractRecord
     {
         return $this->referenceNumber;
     }
-    
+
     public function setLicenseId($value)
     {
         $this->licenseId = $value;
@@ -114,7 +139,7 @@ class SubscriptionRecord extends AbstractRecord
     {
         return $this->licenseId;
     }
-    
+
     public function setAuto($value)
     {
         $this->auto = $value;
@@ -126,7 +151,7 @@ class SubscriptionRecord extends AbstractRecord
     {
         return $this->auto;
     }
-    
+
     public function setReason($value)
     {
         $this->reason = $value;
@@ -138,8 +163,20 @@ class SubscriptionRecord extends AbstractRecord
     {
         return $this->reason;
     }
+    
+    public function setNextDunningStep($value)
+    {
+        $this->nextDunningStep = $value;
 
-    private function updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason)
+        return $this;
+    }
+
+    public function getNextDunningStep()
+    {
+        return $this->nextDunningStep;
+    }
+
+    private function updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep)
     {
         $rows = $this->db->exec("UPDATE `subscriptions` SET
                                         `license_id` = {$licenseId},
@@ -147,6 +184,7 @@ class SubscriptionRecord extends AbstractRecord
                                         `reference_number` = {$referenceNumber},
                                         `auto` = {$auto},
                                         `reason` = {$reason},
+                                        `next_dunning_step` = {$nextDunningStep},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -154,14 +192,15 @@ class SubscriptionRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason)
+    private function insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep)
     {
         $this->db->exec("INSERT INTO `subscriptions` SET
                             `license_id` = {$licenseId},
                             `payment_method` = {$paymentMethod},
                             `reference_number` = {$referenceNumber},
                             `auto` = {$auto},
-                            `reason` = {$reason}
+                            `reason` = {$reason},
+                            `next_dunning_step` = {$nextDunningStep}
                         ");
 
         return $this->db->lastInsertId();
@@ -172,28 +211,33 @@ class SubscriptionRecord extends AbstractRecord
         if (!in_array($this->paymentMethod, OrderRecord::getAllowedPaymentMethods())) {
             throw new InvalidPaymentMethodException("Invalid payment method value!");
         }
-        
+
         if (!in_array($this->reason, self::getAllowedReasons())) {
             throw new InvalidReasonException("Invalid reason value!");
+        }
+
+        if (!in_array($this->nextDunningStep, self::getAllowedNextDunningSteps())) {
+            throw new InvalidReasonException("Invalid nex dunning step value!");
         }
     }
 
     public function save()
     {
         $this->check();
-        
+
         $licenseId = $this->escape($this->licenseId);
         $paymentMethod = $this->escape($this->paymentMethod);
         $referenceNumber = $this->escape($this->referenceNumber);
         $auto = $this->escape($this->auto);
         $reason = $this->escape($this->reason);
+        $nextDunningStep = $this->escape($this->nextDunningStep);
 
         if (!empty($this->id)) {
-            if (!$this->updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason)) {
+            if (!$this->updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep)) {
                 return false;
             }
         } else {
-            $this->id = $this->insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason);
+            $this->id = $this->insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep);
         }
 
         return true;
@@ -208,7 +252,7 @@ class SubscriptionRecord extends AbstractRecord
 
         throw new SubscriptionNotFoundException('Unable to load subscription record');
     }
-    
+
     public function loadByLicenseId($licenseId)
     {
         $escapedId = $this->db->quote($licenseId);
@@ -223,5 +267,10 @@ class SubscriptionRecord extends AbstractRecord
     {
         return self::$allowedReasons;
     }
-    
+
+    public static function getAllowedNextDunningSteps()
+    {
+        return self::$allowedNextDunningSteps;
+    }
+
 }
