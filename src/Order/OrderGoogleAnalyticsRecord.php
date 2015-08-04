@@ -116,9 +116,10 @@ class OrderGoogleAnalyticsRecord extends AbstractRecord
         if (isset($data["__utma"]))
             list($domain_hash, $random_id, $this->firstVisit, $this->previousVisit, $this->currentVisit, $this->timesVisited) = explode('.', $data["__utma"]);
 
+        /*
         if (isset($data["__utmb"]))
             list($domain_hash, $this->pages_viewed, $garbage, $time_beginning_current_session) = explode('.', $data["__utmb"]);
-
+        */
         return $this;
     }
 }
