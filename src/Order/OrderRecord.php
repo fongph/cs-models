@@ -48,7 +48,7 @@ class OrderRecord extends AbstractRecord
     protected $phone;
     protected $test = 0;
     protected $trial = 0;
-    protected $seller;
+    protected $seller = self::SELLER_NONE;
     protected $gatewayStatus;
     protected $gatewayData;
     protected $keys = array(
@@ -88,9 +88,14 @@ class OrderRecord extends AbstractRecord
     const STATUS_PENDING = 'pending';
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELED = 'canceled';
+    
     const PAYMENT_METHOD_BLUESNAP = 'bluesnap';
     const PAYMENT_METHOD_FASTSPRING = 'fastspring';
     const PAYMENT_METHOD_INTERNAL = 'internal';
+    
+    const SELLER_NONE = 'none';
+    const SELLER_MONITORPHONES_COM = 'monitorphones.com';
+    const SELLER_PUMPIC_COM = 'pumpic.com';
 
     public function getHash()
     {
