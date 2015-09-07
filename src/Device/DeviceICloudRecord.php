@@ -83,6 +83,7 @@ class DeviceICloudRecord extends AbstractRecord
     const ERROR_ADD_QUEUE_TASK = 14;
     const ERROR_UNDEFINED = 15;
     const ERROR_UNDEFINED_ON_CRON = 16;
+    const ERROR_REQUEST_TIMEOUT = 17;
 
     //not fatal errors with 3 digits
     const ERROR_BACKUP_DECODING = 100;
