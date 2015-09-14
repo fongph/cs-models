@@ -25,6 +25,7 @@ use PDO,
  * @property string $lastPhoto
  * @property integer $photoSync
  * @property integer $photoDuration
+ * @property integer $processingStartTime
  *
  * @method DeviceICloudRecord setId (integer $value)
  * @method DeviceICloudRecord setDevId (integer $value)
@@ -42,6 +43,7 @@ use PDO,
  * @method DeviceICloudRecord setLastPhoto (string $value)
  * @method DeviceICloudRecord setPhotoSync (string $value)
  * @method DeviceICloudRecord setPhotoDuration (string $value)
+ * @method DeviceICloudRecord setProcessingStartTime (integer $value)
  *
  * @method integer getId ()
  * @method integer getDevId ()
@@ -58,6 +60,7 @@ use PDO,
  * @method string getLastPhoto ()
  * @method integer getPhotoSync ()
  * @method integer getPhotoDuration ()
+ * @method integer getProcessingStartTime ()
  * 
  */
 class DeviceICloudRecord extends AbstractRecord
@@ -121,6 +124,7 @@ class DeviceICloudRecord extends AbstractRecord
         'lastPhoto' => 'last_photo',
         'photoSync' => 'photo_sync',
         'photoDuration' => 'photo_duration',
+        'processingStartTime' => 'processing_start_time',
     );
     protected $recordProperties = array(
         'id' => null,
@@ -139,6 +143,7 @@ class DeviceICloudRecord extends AbstractRecord
         'lastPhoto' => '',
         'photoSync' => 0,
         'photoDuration' => 0,
+        'processingStartTime' => 0
     );
 
     public function __isset($name)
@@ -206,6 +211,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `photo_sync` = {$this->db->quote($this->photoSync)},
                 `photo_duration` = {$this->db->quote($this->photoDuration)},
                 `worker` = {$this->db->quote($this->worker)},
+                `processing_start_time` = {$this->db->quote($this->processingStartTime)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -230,6 +236,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `photo_sync` = {$this->db->quote($this->photoSync)},
                 `photo_duration` = {$this->db->quote($this->photoDuration)},
                 `worker` = {$this->db->quote($this->worker)},
+                `processing_start_time` = {$this->db->quote($this->processingStartTime)},
                 `created_at` = NOW()"
         );
 
@@ -250,6 +257,7 @@ class DeviceICloudRecord extends AbstractRecord
     public function save()
     {
         $this->processing = (int)$this->processing;
+        $this->processingStartTime = (int)$this->processingStartTime;
         $this->devId = (int)$this->devId;
         $this->quotaUsed = (int)$this->quotaUsed;
         $this->lastError = (int)$this->lastError;
