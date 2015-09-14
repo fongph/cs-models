@@ -80,6 +80,25 @@ class DeviceModulesRecord extends AbstractRecord {
         return in_array($moduleName, self::$validModules) && $this->$moduleName > 0;
     }
 
+    public function hasModuleErrorsCode($code) {
+        if(empty($code)) return false;
+        foreach (self::$validModules as $moduleName) {
+            if ($this->$moduleName < 0 && -$this->$moduleName != $code)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    public function getModuleParams($moduleName)
+    {
+        if(in_array($moduleName, self::$validModules)) {
+            return $this->$moduleName;
+        }
+        
+        return null;
+    }
+    
     public function hasModuleError($moduleName)
     {
         return in_array($moduleName, self::$validModules) && $this->$moduleName < 0;
