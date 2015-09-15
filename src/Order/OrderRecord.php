@@ -49,6 +49,7 @@ class OrderRecord extends AbstractRecord
     protected $test = 0;
     protected $trial = 0;
     protected $seller = self::SELLER_NONE;
+    protected $userStatus = self::USER_STATUS_OLD;
     protected $gatewayStatus;
     protected $gatewayData;
     protected $keys = array(
@@ -66,6 +67,7 @@ class OrderRecord extends AbstractRecord
         'phone' => 'phone',
         'test' => 'test',
         'seller' => 'seller',
+        'userStatus' => 'userStatus',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -96,6 +98,9 @@ class OrderRecord extends AbstractRecord
     const SELLER_NONE = 'none';
     const SELLER_MONITORPHONES_COM = 'monitorphones.com';
     const SELLER_PUMPIC_COM = 'pumpic.com';
+    
+    const USER_STATUS_OLD = 'old-customers';
+    const USER_STATUS_NEW = 'new-customers';
 
     public function getHash()
     {
@@ -241,6 +246,18 @@ class OrderRecord extends AbstractRecord
         return $this->seller;
     }
     
+    public function setUserStatus($value)
+    {
+        $this->userStatus = $value;
+
+        return $this;
+    }
+
+    public function getUserStatus()
+    {
+        return $this->userStatus;
+    }
+    
     public function setReferenceNumber($value)
     {
         $this->referenceNumber = $value;
@@ -368,7 +385,7 @@ class OrderRecord extends AbstractRecord
                         ");
     }
 
-    private function updateRecord($siteId, $affId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber, $person, $phone, $test, $trial, $seller)
+    private function updateRecord($siteId, $affId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber, $person, $phone, $test, $trial, $seller, $userStatus)
     {
         $rows = $this->db->exec("UPDATE `orders` SET
                                         `site_id` = {$siteId},
@@ -384,7 +401,8 @@ class OrderRecord extends AbstractRecord
                                         `phone` = {$phone},
                                         `test` = {$test},
                                         `trial` = {$trial},
-                                        `seller` = {$seller},    
+                                        `seller` = {$seller}, 
+                                        `userStatus` = {$userStatus},    
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -392,7 +410,7 @@ class OrderRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($siteId, $affId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber, $person, $phone, $test, $trial, $seller)
+    private function insertRecord($siteId, $affId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber, $person, $phone, $test, $trial, $seller, $userStatus)
     {
         $this->db->exec("INSERT INTO `orders` SET
                                     `site_id` = {$siteId},
@@ -408,7 +426,8 @@ class OrderRecord extends AbstractRecord
                                     `phone` = {$phone},
                                     `test` = {$test},
                                     `trial` = {$trial},
-                                    `seller` = {$seller}    
+                                    `seller` = {$seller},
+                                    `userStatus` = {$userStatus}    
                                 ");
 
         return $this->db->lastInsertId();
@@ -459,12 +478,13 @@ class OrderRecord extends AbstractRecord
         $test = $this->escape($this->test);
         $trial = $this->escape($this->trial);
         $seller = $this->escape($this->seller);
+        $userStatus = $this->escape( $this->userStatus );
         $hash = $this->escape($this->isNew() ? $this->generateHash() : $this->hash);
 
         if (!empty($this->id)) {
-            $this->updateRecord($siteId, $affId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber, $person, $phone, $test, $trial, $seller);
+            $this->updateRecord($siteId, $affId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber, $person, $phone, $test, $trial, $seller, $userStatus);
         } else {
-            $this->id = $this->insertRecord($siteId, $affId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber, $person, $phone, $test, $trial, $seller);
+            $this->id = $this->insertRecord($siteId, $affId, $userId, $status, $paymentMethod, $amount, $location, $hash, $referenceNumber, $person, $phone, $test, $trial, $seller, $userStatus);
         }
 
         $gatewayStatus = $this->escape($this->gatewayStatus);
