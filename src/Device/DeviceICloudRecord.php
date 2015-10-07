@@ -44,6 +44,7 @@ use PDO,
  * @method DeviceICloudRecord setPhotoSync (string $value)
  * @method DeviceICloudRecord setPhotoDuration (string $value)
  * @method DeviceICloudRecord setProcessingStartTime (integer $value)
+ * @method DeviceICloudRecord setLastCommited (integer $value)
  *
  * @method integer getId ()
  * @method integer getDevId ()
@@ -61,6 +62,7 @@ use PDO,
  * @method integer getPhotoSync ()
  * @method integer getPhotoDuration ()
  * @method integer getProcessingStartTime ()
+ * @method integer getLastCommited ()
  * 
  */
 class DeviceICloudRecord extends AbstractRecord
