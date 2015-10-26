@@ -75,12 +75,13 @@ class LicenseRecord extends AbstractRecord
      * 
      * @var array
      */
-    protected static $allowedReasons = array(self::REASON_NONE, self::REASON_EXPIRED, self::REASON_DEVICE_DELETED, self::REASON_BILLING_RETURN, self::REASON_ADMINISTRATIONS);
+    protected static $allowedReasons = array(self::REASON_NONE, self::REASON_EXPIRED, self::REASON_DEVICE_DELETED, self::REASON_BILLING_REFUND, self::REASON_BILLING_FRAUD, self::REASON_ADMINISTRATIONS);
 
     const REASON_NONE = 'none';
     const REASON_EXPIRED = 'expired';
     const REASON_DEVICE_DELETED = 'device-deleted';
-    const REASON_BILLING_RETURN = 'billing-return';
+    const REASON_BILLING_REFUND = 'billing-refund';
+    const REASON_BILLING_FRAUD = 'billing-fraud';
     const REASON_ADMINISTRATIONS = 'administrations';
 
     public function setOrderProduct(OrderProductRecord $value)
