@@ -23,6 +23,7 @@ class UserAuthLogRecord extends AbstractRecord
     protected $userId;
     protected $ip;
     protected $country;
+    protected $timezone;
     protected $browser;
     protected $browserVersion;
     protected $platform;
@@ -36,6 +37,7 @@ class UserAuthLogRecord extends AbstractRecord
         'userId' => 'user_id',
         'ip' => 'ip',
         'country' => 'country',
+        'timezone' => 'timezone',
         'browser' => 'browser',
         'browserVersion' => 'browser_version',
         'platform' => 'platform',
@@ -81,6 +83,18 @@ class UserAuthLogRecord extends AbstractRecord
     public function getCountry()
     {
         return $this->country;
+    }
+    
+    public function setTimezone($value)
+    {
+        $this->timezone = $value;
+
+        return $this;
+    }
+
+    public function getTimezone()
+    {
+        return $this->timezone;
     }
     
     public function setBrowser($value)
@@ -225,12 +239,13 @@ class UserAuthLogRecord extends AbstractRecord
         $this->checkUser();
     }
 
-    private function insertRecord($userId, $ip, $country, $browser, $browserVersion, $platform, $platformVersion, $mobile, $tablet, $userAgent, $fullInfo)
+    private function insertRecord($userId, $ip, $country, $timezone, $browser, $browserVersion, $platform, $platformVersion, $mobile, $tablet, $userAgent, $fullInfo)
     {
         $this->db->exec("INSERT INTO `users_auth_log` SET
                                     `user_id` = {$userId},
                                     `ip` = {$ip},
                                     `country` = {$country},
+                                    `timezone` = {$timezone},
                                     `browser` = {$browser},
                                     `browser_version` = {$browserVersion},
                                     `platform` = {$platform},
@@ -251,6 +266,7 @@ class UserAuthLogRecord extends AbstractRecord
         $userId = $this->escape($this->userId);
         $ip = $this->escape($this->ip);
         $country = $this->escape($this->country);
+        $timezone = $this->escape($this->timezone);
         $browser = $this->escape($this->browser);
         $browserVersion = $this->escape($this->browserVersion);
         $platform = $this->escape($this->platform);
@@ -263,7 +279,7 @@ class UserAuthLogRecord extends AbstractRecord
         if (!empty($this->id)) {
             throw new RecordNotUpdatableException("You can`t update this record!");
         } else {
-            $this->id = $this->insertRecord($userId, $ip, $country, $browser, $browserVersion, $platform, $platformVersion, $mobile, $tablet, $userAgent, $fullInfo);
+            $this->id = $this->insertRecord($userId, $ip, $country, $timezone, $browser, $browserVersion, $platform, $platformVersion, $mobile, $tablet, $userAgent, $fullInfo);
         }
         
         return true;
