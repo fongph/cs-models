@@ -36,6 +36,7 @@ class SubscriptionRecord extends AbstractRecord
         'auto' => 'auto',
         'reason' => 'reason',
         'nextDunningStep' => 'next_dunning_step',
+        'url' => 'url',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
     );
@@ -175,8 +176,20 @@ class SubscriptionRecord extends AbstractRecord
     {
         return $this->nextDunningStep;
     }
+    
+    public function setUrl($value)
+    {
+        $this->url = $value;
 
-    private function updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep)
+        return $this;
+    }
+
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    private function updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep, $url)
     {
         $rows = $this->db->exec("UPDATE `subscriptions` SET
                                         `license_id` = {$licenseId},
@@ -185,6 +198,7 @@ class SubscriptionRecord extends AbstractRecord
                                         `auto` = {$auto},
                                         `reason` = {$reason},
                                         `next_dunning_step` = {$nextDunningStep},
+                                        `url` = {$url},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
                                 ");
@@ -192,7 +206,7 @@ class SubscriptionRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep)
+    private function insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep, $url)
     {
         $this->db->exec("INSERT INTO `subscriptions` SET
                             `license_id` = {$licenseId},
@@ -200,7 +214,8 @@ class SubscriptionRecord extends AbstractRecord
                             `reference_number` = {$referenceNumber},
                             `auto` = {$auto},
                             `reason` = {$reason},
-                            `next_dunning_step` = {$nextDunningStep}
+                            `next_dunning_step` = {$nextDunningStep},
+                            `url` = {$url}
                         ");
 
         return $this->db->lastInsertId();
@@ -231,13 +246,14 @@ class SubscriptionRecord extends AbstractRecord
         $auto = $this->escape($this->auto);
         $reason = $this->escape($this->reason);
         $nextDunningStep = $this->escape($this->nextDunningStep);
+        $url = $this->escape($this->url);
 
         if (!empty($this->id)) {
-            if (!$this->updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep)) {
+            if (!$this->updateRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep, $url)) {
                 return false;
             }
         } else {
-            $this->id = $this->insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep);
+            $this->id = $this->insertRecord($licenseId, $paymentMethod, $referenceNumber, $auto, $reason, $nextDunningStep, $url);
         }
 
         return true;
