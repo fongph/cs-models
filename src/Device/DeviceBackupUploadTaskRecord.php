@@ -125,7 +125,7 @@ class DeviceBackupUploadTaskRecord extends AbstractRecord
 
     private function check()
     {
-        $this->checkUser();
+        return;
     }
 
     public function save()
