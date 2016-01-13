@@ -14,6 +14,7 @@ use PDO,
  * @property string $appleId
  * @property string $applePassword
  * @property string $deviceHash
+ * @property string $serialNumber
  * @property integer $processing
  * @property integer $lastError
  * @property integer $lastBackup
@@ -32,6 +33,7 @@ use PDO,
  * @method DeviceICloudRecord setAppleId (string $value)
  * @method DeviceICloudRecord setApplePassword (string $value)
  * @method DeviceICloudRecord setDeviceHash (string $value)
+ * @method DeviceICloudRecord setSerialNumber (string $value)
  * @method DeviceICloudRecord setProcessing (integer $value)
  * @method DeviceICloudRecord setLastError (integer $value)
  * @method DeviceICloudRecord setLastSync (integer $value)
@@ -50,6 +52,7 @@ use PDO,
  * @method integer getDevId ()
  * @method string getAppleId ()
  * @method string getApplePassword ()
+ * @method string getSerialNumber ()
  * @method string getDeviceHash ()
  * @method integer getProcessing ()
  * @method integer getLastError ()
@@ -114,6 +117,7 @@ class DeviceICloudRecord extends AbstractRecord
         'appleId' => 'apple_id',
         'applePassword' => 'apple_password',
         'deviceHash' => 'device_hash',
+        'serialNumber' => 'serial_number',
         'processing' => 'processing',
         'quotaUsed' => 'quota_used',
         'lastError' => 'last_error',
@@ -136,6 +140,7 @@ class DeviceICloudRecord extends AbstractRecord
         'appleId' => null,
         'applePassword' => null,
         'deviceHash' => null,
+        'serialNumber' => null,
         'processing' => 0,
         'lastBackup' => 0,
         'lastError' => 0,
@@ -205,6 +210,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `apple_id` = {$this->db->quote($this->appleId)},
                 `apple_password` = {$this->db->quote($this->applePassword)},
                 `device_hash` = {$this->db->quote($this->deviceHash)},
+                `serial_number` = {$this->db->quote($this->serialNumber)},
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
@@ -231,6 +237,7 @@ class DeviceICloudRecord extends AbstractRecord
                 `apple_id` = {$this->db->quote($this->appleId)},
                 `apple_password` = {$this->db->quote($this->applePassword)},
                 `device_hash` = {$this->db->quote($this->deviceHash)},
+                `serial_number` = {$this->db->quote($this->serialNumber)},
                 `processing` = {$this->processing},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
