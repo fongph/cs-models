@@ -81,6 +81,7 @@ class DeviceICloudRecord extends AbstractRecord
     const ERROR_DIRECTORY_EXIST = 3;
     const ERROR_INVALID_OUTPUT_DIR = 4;
     const ERROR_UNDEFINED_ON_DOWNLOAD = 5;
+    const ERROR_TWO_STEP_VERIFICATION = 6;
     const ERROR_INVALID_PYTHON_RESULT = 8;
     const ERROR_UNDEFINED_PYTHON = 9;
 
@@ -98,6 +99,8 @@ class DeviceICloudRecord extends AbstractRecord
 
     const ERROR_LOADING_CHUNK_TIMEOUT = 110;
     const ERROR_TIMEOUT = 111;
+
+    const ERROR_INVALID_RESPONSE_CODE = 113;
 
     const ERROR_EMPTY_DB_FILE = 160;
     const ERROR_NO_DATA = 161;
@@ -319,7 +322,7 @@ class DeviceICloudRecord extends AbstractRecord
             LIMIT 1")->fetch(PDO::FETCH_ASSOC);
 
         if ($data === false)
-            throw new DeviceNotFoundException('Unable to load order record');
+            throw new DeviceNotFoundException('Unable to load DeviceICloudRecord');
 
         return $this->loadFromArray($data);
     }
