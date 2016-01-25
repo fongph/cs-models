@@ -148,9 +148,9 @@ class DeviceBackupUploadTaskRecord extends AbstractRecord
 
     /**
      * 
-     * @param type $id
+     * @param int $id
      * @return DeviceBackupUploadTaskRecord
-     * @throws Exception
+     * @throws \Exception
      */
     public function load($id)
     {
@@ -165,6 +165,28 @@ class DeviceBackupUploadTaskRecord extends AbstractRecord
     public static function getAllowedStatuses()
     {
         return self::$allowedStatuses;
+    }
+
+    public function createIfNotExist()
+    {
+        if (isset($this->id)) {
+            throw new \Exception('Task Already Saved!');
+
+        } elseif (!isset($this->deviceId)) {
+            throw new \Exception('Device ID Required!');
+        }
+
+        $res = $this->db->query("
+            SELECT 1
+            FROM `device_icloud_upload_task`
+            WHERE `device_id`  = {$this->db->quote($this->deviceId)}
+              AND `status` != {$this->db->quote(self::STATUS_FAILED)}
+              AND `status` != {$this->db->quote(self::STATUS_COMPLETED)}
+            LIMIT 1")->fetchColumn();
+
+        if ($res === false) {
+            $this->save();
+        }
     }
 
 }
