@@ -117,8 +117,7 @@ class DeviceBackupUploadTaskRecord extends AbstractRecord
                                     `priority` = {$priority},
                                     `comments` = {$comments},
                                     `owner` = {$owner},
-                                    `status` = {$status},
-                                ");
+                                    `status` = {$status}");
 
         return $this->db->lastInsertId();
     }
