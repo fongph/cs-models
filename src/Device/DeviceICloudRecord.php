@@ -264,8 +264,8 @@ class DeviceICloudRecord extends AbstractRecord
     {
         $checkStatus = is_numeric($this->devId)
             && !empty($this->appleId)
-            && !empty($this->applePassword)
-            && !empty($this->deviceHash);
+            && !empty($this->applePassword);
+        
         if($checkStatus)
             return true;
         else throw new \Exception('Invalid iCloud Record Params');
