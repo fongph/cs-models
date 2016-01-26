@@ -77,7 +77,7 @@ class DeviceICloudRecord extends AbstractRecord
     const ERROR_NONE = 0;
     const ERROR_AUTHENTICATION = 1;
 
-    const ERROR_NO_BACKUPS = 2;
+    const ERROR_FIRST_NOT_COMMITTED = 2;
     const ERROR_DIRECTORY_EXIST = 3;
     const ERROR_INVALID_OUTPUT_DIR = 4;
     const ERROR_UNDEFINED_ON_DOWNLOAD = 5;
