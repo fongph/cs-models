@@ -37,6 +37,7 @@ class LicenseRecord extends AbstractRecord
     protected $lifetime = 0;
     protected $currency = 'USD';
     protected $amount = 0;
+    protected $price = 0;
     protected $reason = self::REASON_NONE;
     protected $keys = array(
         'id' => 'id',
@@ -51,6 +52,7 @@ class LicenseRecord extends AbstractRecord
         'lifetime' => 'lifetime',
         'currency' => 'currency',
         'amount' => 'amount',
+        'price' => 'price',
         'reason' => 'reason',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
@@ -285,6 +287,18 @@ class LicenseRecord extends AbstractRecord
     {
         return $this->amount;
     }
+    
+    public function setPrice($value)
+    {
+        $this->price = $value;
+
+        return $this;
+    }
+
+    public function getPrice()
+    {
+        return $this->price;
+    }
 
     public function setReason($value)
     {
@@ -298,7 +312,7 @@ class LicenseRecord extends AbstractRecord
         return $this->reason;
     }
 
-    private function updateRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $reason)
+    private function updateRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $reason)
     {
         $rows = $this->db->exec("UPDATE `licenses` SET
                                         `user_id` = {$userId},
@@ -312,6 +326,7 @@ class LicenseRecord extends AbstractRecord
                                         `lifetime` = {$lifetime},
                                         `currency` = {$currency},
                                         `amount` = {$amount},
+                                        `price` = {$price},
                                         `reason` = {$reason},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
@@ -320,7 +335,7 @@ class LicenseRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $reason)
+    private function insertRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $reason)
     {
         $this->db->exec("INSERT INTO `licenses` SET
                             `user_id` = {$userId},
@@ -334,6 +349,7 @@ class LicenseRecord extends AbstractRecord
                             `lifetime` = {$lifetime},
                             `currency` = {$currency},
                             `amount` = {$amount},
+                            `price` = {$price},
                             `reason` = {$reason}
                         ");
 
@@ -387,14 +403,15 @@ class LicenseRecord extends AbstractRecord
         $lifetime = $this->escape($this->lifetime);
         $currency = $this->escape($this->currency);
         $amount = $this->escape($this->amount);
+        $price = $this->escape($this->price);
         $reason = $this->escape($this->reason);
 
         if (!empty($this->id)) {
-            if (!$this->updateRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $reason)) {
+            if (!$this->updateRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $reason)) {
                 return false;
             }
         } else {
-            $this->id = $this->insertRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $reason);
+            $this->id = $this->insertRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $reason);
         }
 
         return true;
