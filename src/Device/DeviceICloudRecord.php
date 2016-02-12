@@ -77,7 +77,7 @@ class DeviceICloudRecord extends AbstractRecord
     const ERROR_NONE = 0;
     const ERROR_AUTHENTICATION = 1;
 
-    const ERROR_NO_BACKUPS = 2;
+    const ERROR_FIRST_NOT_COMMITTED = 2;
     const ERROR_DIRECTORY_EXIST = 3;
     const ERROR_INVALID_OUTPUT_DIR = 4;
     const ERROR_UNDEFINED_ON_DOWNLOAD = 5;
@@ -262,13 +262,15 @@ class DeviceICloudRecord extends AbstractRecord
 
     public function check()
     {
-        $checkStatus = is_numeric($this->devId)
+        $hasRequiredProperties = is_numeric($this->devId)
             && !empty($this->appleId)
             && !empty($this->applePassword);
-        
-        if($checkStatus)
+
+        if($hasRequiredProperties) {
             return true;
-        else throw new \Exception('Invalid iCloud Record Params');
+        } else {
+            throw new \Exception('Invalid iCloud Record Params');
+        }
     }
 
     public function save()
@@ -357,6 +359,13 @@ class DeviceICloudRecord extends AbstractRecord
             $name = '';
         }
         return "#{$errorCode}{$name}";
+    }
+
+    public function newBackupUploadTask()
+    {
+        $task = new DeviceBackupUploadTaskRecord($this->db);
+        $task->setDeviceId($this->getDevId());
+        return $task;
     }
 
 }
