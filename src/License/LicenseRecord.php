@@ -38,6 +38,7 @@ class LicenseRecord extends AbstractRecord
     protected $currency = 'USD';
     protected $amount = 0;
     protected $price = 0;
+    protected $priceRegular = 0;
     protected $reason = self::REASON_NONE;
     protected $keys = array(
         'id' => 'id',
@@ -53,6 +54,7 @@ class LicenseRecord extends AbstractRecord
         'currency' => 'currency',
         'amount' => 'amount',
         'price' => 'price',
+        'priceRegular' => 'price_regular',
         'reason' => 'reason',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at'
@@ -299,6 +301,18 @@ class LicenseRecord extends AbstractRecord
     {
         return $this->price;
     }
+    
+    public function setPriceRegular($value)
+    {
+        $this->priceRegular = $value;
+
+        return $this;
+    }
+
+    public function getPriceRegular()
+    {
+        return $this->priceRegular;
+    }
 
     public function setReason($value)
     {
@@ -312,7 +326,7 @@ class LicenseRecord extends AbstractRecord
         return $this->reason;
     }
 
-    private function updateRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $reason)
+    private function updateRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $priceRegular, $reason)
     {
         $rows = $this->db->exec("UPDATE `licenses` SET
                                         `user_id` = {$userId},
@@ -327,6 +341,7 @@ class LicenseRecord extends AbstractRecord
                                         `currency` = {$currency},
                                         `amount` = {$amount},
                                         `price` = {$price},
+                                        `price_regular` = {$priceRegular},
                                         `reason` = {$reason},
                                         `updated_at` = NOW()
                                     WHERE `id` = {$this->id}
@@ -335,7 +350,7 @@ class LicenseRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $reason)
+    private function insertRecord($userId, $productId, $deviceId, $orderProductId, $type, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $priceRegular, $reason)
     {
         $this->db->exec("INSERT INTO `licenses` SET
                             `user_id` = {$userId},
@@ -350,6 +365,7 @@ class LicenseRecord extends AbstractRecord
                             `currency` = {$currency},
                             `amount` = {$amount},
                             `price` = {$price},
+                            `price_regular` = {$priceRegular},
                             `reason` = {$reason}
                         ");
 
@@ -404,14 +420,15 @@ class LicenseRecord extends AbstractRecord
         $currency = $this->escape($this->currency);
         $amount = $this->escape($this->amount);
         $price = $this->escape($this->price);
+        $priceRegular = $this->escape($this->priceRegular);
         $reason = $this->escape($this->reason);
 
         if (!empty($this->id)) {
-            if (!$this->updateRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $reason)) {
+            if (!$this->updateRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $priceRegular, $reason)) {
                 return false;
             }
         } else {
-            $this->id = $this->insertRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $reason);
+            $this->id = $this->insertRecord($userId, $productId, $deviceId, $orderProductId, $productType, $status, $activationDate, $expirationDate, $lifetime, $currency, $amount, $price, $priceRegular, $reason);
         }
 
         return true;
