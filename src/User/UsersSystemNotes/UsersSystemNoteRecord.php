@@ -38,7 +38,7 @@ class UsersSystemNoteRecord extends AbstractRecord
      * 
      * @var array
      */
-    protected static $allowedTypes = array(self::TYPE_SYSTEM, self::TYPE_AUTH);
+    protected static $allowedTypes = array(self::TYPE_SYSTEM, self::TYPE_AUTH, self::TYPE_APP);
     
     const TYPE_SYSTEM = 'sys';
     const TYPE_AUTH = 'auth';
