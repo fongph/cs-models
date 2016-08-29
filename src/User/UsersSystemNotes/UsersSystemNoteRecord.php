@@ -42,7 +42,8 @@ class UsersSystemNoteRecord extends AbstractRecord
     
     const TYPE_SYSTEM = 'sys';
     const TYPE_AUTH = 'auth';
-    
+    const TYPE_APP = 'app';
+
     public function setUserId($id)
     {
         $this->userId = $id;
