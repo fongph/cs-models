@@ -38,6 +38,7 @@ class ProductRecord extends AbstractRecord
     protected $active = 0;
     protected $origin = self::ORIGIN_INTERNAL;
     protected $price = 0;
+    protected $priceRegular = 0;
     protected $codeBluesnap;
     protected $codeFastspring;
     protected $keys = array(
@@ -50,6 +51,7 @@ class ProductRecord extends AbstractRecord
         'type' => 'type',
         'active' => 'active',
         'price' => 'price',
+        'priceRegular' => 'price_regular',
         'codeBluesnap' => 'code_bluesnap',
         'codeFastspring' => 'code_fastspring',
         'origin' => 'origin',
@@ -195,6 +197,18 @@ class ProductRecord extends AbstractRecord
         return $this->price;
     }
 
+    public function setPriceRegular($value)
+    {
+        $this->priceRegular = $value;
+
+        return $this;
+    }
+
+    public function getPriceRegular()
+    {
+        return $this->priceRegular;
+    }
+
     public function setCodeBlueSnap($value)
     {
         $this->codeBluesnap = $value;
@@ -301,7 +315,7 @@ class ProductRecord extends AbstractRecord
         return null;
     }
 
-    private function updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin)
+    private function updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin, $priceRegular)
     {
         $rows = $this->db->exec("UPDATE `products` SET
                                         `site_id` = {$siteId},
@@ -312,6 +326,7 @@ class ProductRecord extends AbstractRecord
                                         `type` = {$type},
                                         `active` = {$active},
                                         `price` = {$price},
+                                        `price_regular` = {$priceRegular},
                                         `code_bluesnap` = {$codeBluesnap},
                                         `code_fastspring` = {$codeFastspring},
                                         `origin` = {$origin},
@@ -322,7 +337,7 @@ class ProductRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin)
+    private function insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin, $priceRegular)
     {
         $this->db->exec("INSERT INTO `products` SET 
                             `site_id` = {$siteId},
@@ -333,6 +348,7 @@ class ProductRecord extends AbstractRecord
                             `type` = {$type},
                             `active` = {$active},
                             `price` = {$price},
+                            `price_regular` = {$priceRegular},
                             `code_bluesnap` = {$codeBluesnap},
                             `code_fastspring` = {$codeFastspring},
                             `origin` = {$origin}
@@ -381,14 +397,15 @@ class ProductRecord extends AbstractRecord
         $type = $this->escape($this->type);
         $active = $this->escape($this->active);
         $price = $this->escape($this->price);
+        $priceRegular = $this->escape($this->priceRegular);
         $codeBluesnap = $this->escape($this->codeBluesnap);
         $codeFastspring = $this->escape($this->codeFastspring);
         $origin = $this->escape($this->origin);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin);
+            return $this->updateRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin, $priceRegular);
         } else {
-            $this->id = $this->insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin);
+            $this->id = $this->insertRecord($siteId, $limitationId, $name, $namespace, $group, $type, $active, $price, $codeBluesnap, $codeFastspring, $origin, $priceRegular);
         }
     }
 
