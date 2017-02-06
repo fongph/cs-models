@@ -28,6 +28,7 @@ class DeviceRecord extends AbstractRecord
     protected $appVersion = 0;
     protected $time = 0;
     protected $lastVisit = 0;
+    protected $token;
     protected $network = self::NETWORK_UNKNOWN;
     protected $rooted = 0;
     protected $rootAccess = 0;
@@ -44,6 +45,7 @@ class DeviceRecord extends AbstractRecord
         'appVersion' => 'app_version',
         'time' => 'time',
         'lastVisit' => 'last_visit',
+        'token' => 'token',
         'network' => 'network',
         'rooted' => 'rooted',
         'rootAccess' => 'rootAccess',
@@ -164,6 +166,18 @@ class DeviceRecord extends AbstractRecord
         return $this->lastVisit;
     }
 
+    public function setToken($value)
+    {
+        $this->token = $value;
+
+        return $this;
+    }
+
+    public function getToken()
+    {
+        return $this->token;
+    }
+    
     public function setNetwork($value)
     {
         $this->network = $value;
@@ -280,7 +294,7 @@ class DeviceRecord extends AbstractRecord
         return $this->iCloudDevice;
     }
 
-    private function updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $rootAccess, $power, $deleted)
+    private function updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $token, $network, $rooted, $rootAccess, $power, $deleted)
     {
         $rows = $this->db->exec("UPDATE `devices` SET
                                         `user_id` = {$userId},
@@ -292,6 +306,7 @@ class DeviceRecord extends AbstractRecord
                                         `app_version` = {$appVersion},
                                         `time` = {$time},
                                         `last_visit` = {$lastVisit},
+                                        `token` = {$token},
                                         `network` = {$network},
                                         `rooted` = {$rooted},
                                         `root_access` = {$rootAccess},
@@ -304,7 +319,7 @@ class DeviceRecord extends AbstractRecord
         return ($rows > 0);
     }
 
-    private function insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $rootAccess, $power, $deleted)
+    private function insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $token, $network, $rooted, $rootAccess, $power, $deleted)
     {
         $this->db->exec("INSERT INTO `devices` SET
                                     `user_id` = {$userId},
@@ -316,6 +331,7 @@ class DeviceRecord extends AbstractRecord
                                     `app_version` = {$appVersion},
                                     `time` = {$time},
                                     `last_visit` = {$lastVisit},
+                                    `token` = {$token},
                                     `network` = {$network},
                                     `rooted` = {$rooted},
                                     `root_access` = {$rootAccess},
@@ -359,6 +375,7 @@ class DeviceRecord extends AbstractRecord
         $appVersion = $this->escape($this->appVersion);
         $time = $this->escape($this->time);
         $lastVisit = $this->escape($this->lastVisit);
+        $token = $this->escape($this->token);
         $network = $this->escape($this->network);
         $rooted = $this->escape($this->rooted);
         $rootAccess = $this->escape($this->rootAccess);
@@ -366,10 +383,10 @@ class DeviceRecord extends AbstractRecord
         $deleted = $this->escape($this->deleted);
 
         if (!empty($this->id)) {
-            return $this->updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $rootAccess, $power, $deleted);
+            return $this->updateRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $token, $network, $rooted, $rootAccess, $power, $deleted);
         }
 
-        $this->id = $this->insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $network, $rooted, $rootAccess, $power, $deleted);
+        $this->id = $this->insertRecord($userId, $name, $uniqueId, $os, $osVersion, $model, $appVersion, $time, $lastVisit, $token, $network, $rooted, $rootAccess, $power, $deleted);
 
         return true;
     }
