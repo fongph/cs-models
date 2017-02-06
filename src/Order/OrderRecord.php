@@ -51,7 +51,7 @@ class OrderRecord extends AbstractRecord
     protected $seller = self::SELLER_NONE;
     protected $userStatus = self::USER_STATUS_OLD;
     protected $gatewayStatus;
-    protected $licenseUpdated = false;
+    protected $licenseUpdated = 0;
     protected $gatewayData;
     protected $keys = array(
         'id' => 'id',
@@ -307,9 +307,9 @@ class OrderRecord extends AbstractRecord
         return $this->gatewayData;
     }
 
-    public function setLicenseUpdated()
+    public function setLicenseUpdated($value = true)
     {
-        $this->licenseUpdated = true;
+        $this->licenseUpdated = $this->boolToNum($value);
 
         return $this;
     }
@@ -499,8 +499,9 @@ class OrderRecord extends AbstractRecord
 
         $gatewayStatus = $this->escape($this->gatewayStatus);
         $gatewayData = $this->escape($this->gatewayData);
+        $licenseUpdated = $this->escape($this->licenseUpdated);
 
-        $this->insertHistoryRecord($referenceNumber, $paymentMethod, $status, $gatewayStatus, $gatewayData, $this->licenseUpdated);
+        $this->insertHistoryRecord($referenceNumber, $paymentMethod, $status, $gatewayStatus, $gatewayData, $licenseUpdated);
 
         return true;
     }
