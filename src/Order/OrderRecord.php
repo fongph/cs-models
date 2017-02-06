@@ -19,7 +19,7 @@ class OrderRecord extends AbstractRecord
 
     /**
      * Database connection
-     * 
+     *
      * @var PDO
      */
     protected $db;
@@ -51,6 +51,7 @@ class OrderRecord extends AbstractRecord
     protected $seller = self::SELLER_NONE;
     protected $userStatus = self::USER_STATUS_OLD;
     protected $gatewayStatus;
+    protected $licenseUpdated = false;
     protected $gatewayData;
     protected $keys = array(
         'id' => 'id',
@@ -74,14 +75,14 @@ class OrderRecord extends AbstractRecord
 
     /**
      * List of allowed statuses
-     * 
+     *
      * @var array
      */
     protected static $allowedStatuses = array(self::STATUS_CREATED, self::STATUS_PENDING, self::STATUS_COMPLETED, self::STATUS_CANCELED);
 
     /**
      * List of allowed payment methods
-     * 
+     *
      * @var array
      */
     protected static $allowedPaymentMethods = array(self::PAYMENT_METHOD_BLUESNAP, self::PAYMENT_METHOD_FASTSPRING, self::PAYMENT_METHOD_INTERNAL);
@@ -90,15 +91,15 @@ class OrderRecord extends AbstractRecord
     const STATUS_PENDING = 'pending';
     const STATUS_COMPLETED = 'completed';
     const STATUS_CANCELED = 'canceled';
-    
+
     const PAYMENT_METHOD_BLUESNAP = 'bluesnap';
     const PAYMENT_METHOD_FASTSPRING = 'fastspring';
     const PAYMENT_METHOD_INTERNAL = 'internal';
-    
+
     const SELLER_NONE = 'none';
     const SELLER_MONITORPHONES_COM = 'monitorphones.com';
     const SELLER_PUMPIC_COM = 'pumpic.com';
-    
+
     const USER_STATUS_OLD = 'old-customers';
     const USER_STATUS_NEW = 'new-customers';
 
@@ -185,7 +186,7 @@ class OrderRecord extends AbstractRecord
     {
         return $this->aff_id;
     }
-    
+
     public function setPerson($value)
     {
         $this->person = $value;
@@ -197,7 +198,7 @@ class OrderRecord extends AbstractRecord
     {
         return $this->person;
     }
-    
+
     public function setPhone($value)
     {
         $this->phone = $value;
@@ -209,7 +210,7 @@ class OrderRecord extends AbstractRecord
     {
         return $this->phone;
     }
-    
+
     public function setTest($value = true)
     {
         $this->test = $this->boolToNum($value);
@@ -221,7 +222,7 @@ class OrderRecord extends AbstractRecord
     {
         return $this->test;
     }
-    
+
     public function setTrial($value = true)
     {
         $this->trial = $this->boolToNum($value);
@@ -233,7 +234,7 @@ class OrderRecord extends AbstractRecord
     {
         return $this->trial;
     }
-    
+
     public function setSeller($value)
     {
         $this->seller = $value;
@@ -245,7 +246,7 @@ class OrderRecord extends AbstractRecord
     {
         return $this->seller;
     }
-    
+
     public function setUserStatus($value)
     {
         $this->userStatus = $value;
@@ -257,7 +258,7 @@ class OrderRecord extends AbstractRecord
     {
         return $this->userStatus;
     }
-    
+
     public function setReferenceNumber($value)
     {
         $this->referenceNumber = $value;
@@ -306,6 +307,13 @@ class OrderRecord extends AbstractRecord
         return $this->gatewayData;
     }
 
+    public function setLicenseUpdated()
+    {
+        $this->licenseUpdated = true;
+
+        return $this;
+    }
+
     public function setSite(SiteRecord $value)
     {
         if ($value->isNew()) {
@@ -333,7 +341,7 @@ class OrderRecord extends AbstractRecord
     }
 
     /**
-     * 
+     *
      * @return UserRecord
      */
     public function getUser()
@@ -354,7 +362,7 @@ class OrderRecord extends AbstractRecord
     }
 
     /**
-     * 
+     *
      * @return SiteRecord
      */
     public function getSite()
@@ -374,10 +382,12 @@ class OrderRecord extends AbstractRecord
         return null;
     }
 
-    private function insertHistoryRecord($paymentMethod, $status, $gatewayStatus, $gatewayData)
+    private function insertHistoryRecord($referenceNumber, $paymentMethod, $status, $gatewayStatus, $gatewayData, $licenseUpdated)
     {
         $this->db->exec("INSERT INTO `orders_history` SET 
                             `order_id` = {$this->id},
+                            `reference_number` = {$referenceNumber},
+                            `license_updated` = {$licenseUpdated},
                             `payment_method` = {$paymentMethod},
                             `status` = {$status},
                             `gateway_status` = {$gatewayStatus},
@@ -478,7 +488,7 @@ class OrderRecord extends AbstractRecord
         $test = $this->escape($this->test);
         $trial = $this->escape($this->trial);
         $seller = $this->escape($this->seller);
-        $userStatus = $this->escape( $this->userStatus );
+        $userStatus = $this->escape($this->userStatus);
         $hash = $this->escape($this->isNew() ? $this->generateHash() : $this->hash);
 
         if (!empty($this->id)) {
@@ -489,7 +499,8 @@ class OrderRecord extends AbstractRecord
 
         $gatewayStatus = $this->escape($this->gatewayStatus);
         $gatewayData = $this->escape($this->gatewayData);
-        $this->insertHistoryRecord($paymentMethod, $status, $gatewayStatus, $gatewayData);
+
+        $this->insertHistoryRecord($referenceNumber, $paymentMethod, $status, $gatewayStatus, $gatewayData, $this->licenseUpdated);
 
         return true;
     }
