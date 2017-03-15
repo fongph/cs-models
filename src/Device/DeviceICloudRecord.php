@@ -84,6 +84,8 @@ class DeviceICloudRecord extends AbstractRecord
     const ERROR_TWO_STEP_VERIFICATION = 6;
     const ERROR_INVALID_PYTHON_RESULT = 8;
     const ERROR_UNDEFINED_PYTHON = 9;
+    
+    const ERROR_ACCOUNT_LOCKED = 10;
 
     const ERROR_DEVICE_NOT_FOUND_ON_ICLOUD = 11;
     const ERROR_INVALID_QUEUE_DATA = 12;
