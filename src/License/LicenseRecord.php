@@ -454,6 +454,19 @@ class LicenseRecord extends AbstractRecord
         throw new LicenseNotFoundException('Unable to load order product record');
     }
 
+    public function findAllByProductId($productId){
+        $escapedId = $this->db->quote($productId);
+        if (($data = $this->db->query("SELECT 
+                            *,
+                            UNIX_TIMESTAMP(`created_at`) as `created_at`, 
+                            UNIX_TIMESTAMP(`updated_at`) as `updated_at` 
+                        FROM `licenses` WHERE `order_product_id` = {$escapedId} LIMIT 1")->fetchAll(PDO::FETCH_ASSOC)) != false) {
+            return $data;
+        }
+        throw new LicenseNotFoundException('Unable to load order product record');
+    }
+
+
     public static function getAllowedReasons()
     {
         return self::$allowedReasons;
