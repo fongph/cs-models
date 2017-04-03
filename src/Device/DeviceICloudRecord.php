@@ -27,6 +27,8 @@ use PDO,
  * @property integer $photoSync
  * @property integer $photoDuration
  * @property integer $processingStartTime
+ * @property integer $tokenGenerationTime
+ * @property integer $twoFactorAuthenticationEnabled
  *
  * @method DeviceICloudRecord setId (integer $value)
  * @method DeviceICloudRecord setDevId (integer $value)
@@ -47,7 +49,7 @@ use PDO,
  * @method DeviceICloudRecord setPhotoDuration (string $value)
  * @method DeviceICloudRecord setProcessingStartTime (integer $value)
  * @method DeviceICloudRecord setLastCommited (integer $value)
- * @method DeviceICloudRecord set2faEnabled (integer $value)
+ * @method DeviceICloudRecord setTwoFactorAuthenticationEnabled (integer $value)
  * @method DeviceICloudRecord setTokenGenerationTime (integer $value)
  *
  * @method integer getId ()
@@ -70,15 +72,13 @@ use PDO,
  * @method integer getLastCommited ()
  * 
  */
-class DeviceICloudRecord extends AbstractRecord
-{
+class DeviceICloudRecord extends AbstractRecord {
+
     const PROCESS_AWAITING = 0;
     const PROCESS_IMPORT = 1;
     const PROCESS_FIRST_COMMIT = 2;
-
     const ERROR_NONE = 0;
     const ERROR_AUTHENTICATION = 1;
-
     const ERROR_FIRST_NOT_COMMITTED = 2;
     const ERROR_DIRECTORY_EXIST = 3;
     const ERROR_INVALID_OUTPUT_DIR = 4;
@@ -86,26 +86,19 @@ class DeviceICloudRecord extends AbstractRecord
     const ERROR_TWO_STEP_VERIFICATION = 6;
     const ERROR_INVALID_PYTHON_RESULT = 8;
     const ERROR_UNDEFINED_PYTHON = 9;
-    
     const ERROR_ACCOUNT_LOCKED = 10;
-
     const ERROR_DEVICE_NOT_FOUND_ON_ICLOUD = 11;
     const ERROR_INVALID_QUEUE_DATA = 12;
     const ERROR_PARSE = 13;
-
     const ERROR_ADD_QUEUE_TASK = 14;
     const ERROR_UNDEFINED = 15;
     const ERROR_UNDEFINED_ON_CRON = 16;
     const ERROR_REQUEST_TIMEOUT = 17;
-
     //not fatal errors with 3 digits
     const ERROR_BACKUP_DECODING = 100;
-
     const ERROR_LOADING_CHUNK_TIMEOUT = 110;
     const ERROR_TIMEOUT = 111;
-
     const ERROR_INVALID_RESPONSE_CODE = 113;
-
     const ERROR_EMPTY_DB_FILE = 160;
     const ERROR_NO_DATA = 161;
     const ERROR_SQLITE_DATA_BROKEN = 162;
@@ -117,7 +110,6 @@ class DeviceICloudRecord extends AbstractRecord
         self::ERROR_BACKUP_DECODING => 'iCloud Decoding',
         self::ERROR_LOADING_CHUNK_TIMEOUT => 'Downloading Chunk Timeout',
     );
-
     protected $deviceRecord;
     protected $keys = array(
         'id' => 'id',
@@ -141,7 +133,7 @@ class DeviceICloudRecord extends AbstractRecord
         'photoSync' => 'photo_sync',
         'photoDuration' => 'photo_duration',
         'processingStartTime' => 'processing_start_time',
-        '2faEnabled' => '2fa_enabled',
+        'twoFactorAuthenticationEnabled' => '2fa_enabled',
         'tokenGenerationTime' => 'token_generation_time'
     );
     protected $recordProperties = array(
@@ -164,7 +156,7 @@ class DeviceICloudRecord extends AbstractRecord
         'photoSync' => 0,
         'photoDuration' => 0,
         'processingStartTime' => 0,
-        '2faEnabled' => 0,
+        'twoFactorAuthenticationEnabled' => 0,
         'tokenGenerationTime' => 0
     );
 
@@ -175,16 +167,16 @@ class DeviceICloudRecord extends AbstractRecord
 
     public function __call($name, $params)
     {
-        switch(substr($name, 0, 3)) {
+        switch (substr($name, 0, 3)) {
             case 'get':
                 $propName = lcfirst(substr($name, 3));
-                if(array_key_exists($propName, $this->recordProperties))
+                if (array_key_exists($propName, $this->recordProperties))
                     return $this->recordProperties[$propName];
                 break;
 
             case 'set':
                 $propName = lcfirst(substr($name, 3));
-                if(array_key_exists($propName, $this->recordProperties)){
+                if (array_key_exists($propName, $this->recordProperties)) {
                     list($propValue) = $params;
                     $this->recordProperties[$propName] = $propValue;
                 }
@@ -196,27 +188,27 @@ class DeviceICloudRecord extends AbstractRecord
 
     public function __set($name, $value)
     {
-        if(method_exists($this, $method = "set" . ucfirst($name)))
+        if (method_exists($this, $method = "set" . ucfirst($name)))
             $this->$method($value);
 
-        elseif(array_key_exists($name, $this->recordProperties))
+        elseif (array_key_exists($name, $this->recordProperties))
             $this->recordProperties[$name] = $value;
     }
 
     public function __get($name)
     {
-        if(method_exists($this, $method = "get" . ucfirst($name)))
+        if (method_exists($this, $method = "get" . ucfirst($name)))
             return $this->$method();
 
-        if(array_key_exists($name, $this->recordProperties))
+        if (array_key_exists($name, $this->recordProperties))
             return $this->recordProperties[$name];
-
-        else return null;
+        else
+            return null;
     }
 
     private function updateRecord()
     {
-        return (bool)$this->db->exec("
+        return (bool) $this->db->exec("
             UPDATE `devices_icloud` 
             SET `dev_id` = {$this->devId},
                 `apple_id` = {$this->db->quote($this->appleId)},
@@ -236,6 +228,8 @@ class DeviceICloudRecord extends AbstractRecord
                 `photo_duration` = {$this->db->quote($this->photoDuration)},
                 `worker` = {$this->db->quote($this->worker)},
                 `processing_start_time` = {$this->db->quote($this->processingStartTime)},
+                `token_generation_time` = {$this->db->quote($this->tokenGenerationTime)},
+                `2fa_enabled` = {$this->db->quote($this->twoFactorAuthenticationEnabled)},
                 `updated_at` = NOW()
             WHERE `id` = {$this->id}"
         );
@@ -263,6 +257,8 @@ class DeviceICloudRecord extends AbstractRecord
                 `photo_duration` = {$this->db->quote($this->photoDuration)},
                 `worker` = {$this->db->quote($this->worker)},
                 `processing_start_time` = {$this->db->quote($this->processingStartTime)},
+                `token_generation_time` = {$this->db->quote($this->tokenGenerationTime)},
+                `2fa_enabled` = {$this->db->quote($this->twoFactorAuthenticationEnabled)},
                 `created_at` = NOW()"
         );
 
@@ -271,11 +267,9 @@ class DeviceICloudRecord extends AbstractRecord
 
     public function check()
     {
-        $hasRequiredProperties = is_numeric($this->devId)
-            && !empty($this->appleId)
-            && !empty($this->applePassword);
+        $hasRequiredProperties = is_numeric($this->devId) && !empty($this->appleId) && !empty($this->applePassword);
 
-        if($hasRequiredProperties) {
+        if ($hasRequiredProperties) {
             return true;
         } else {
             throw new \Exception('Invalid iCloud Record Params');
@@ -284,13 +278,14 @@ class DeviceICloudRecord extends AbstractRecord
 
     public function save()
     {
-        $this->processing = (int)$this->processing;
-        $this->processingStartTime = (int)$this->processingStartTime;
-        $this->devId = (int)$this->devId;
-        $this->quotaUsed = (int)$this->quotaUsed;
-        $this->lastError = (int)$this->lastError;
-        $this->lastBackup = (int)$this->lastBackup;
-        $this->lastSync = (int)$this->lastSync;
+        $this->processing = (int) $this->processing;
+        $this->processingStartTime = (int) $this->processingStartTime;
+        $this->tokenGenerationTime = (int) $this->tokenGenerationTime;
+        $this->devId = (int) $this->devId;
+        $this->quotaUsed = (int) $this->quotaUsed;
+        $this->lastError = (int) $this->lastError;
+        $this->lastBackup = (int) $this->lastBackup;
+        $this->lastSync = (int) $this->lastSync;
         $this->check();
 
         if (!empty($this->id)) {
@@ -363,7 +358,7 @@ class DeviceICloudRecord extends AbstractRecord
     public static function getErrorName($errorCode)
     {
         if (isset(self::$errorNames[$errorCode])) {
-            $name = ' '.self::$errorNames[$errorCode];
+            $name = ' ' . self::$errorNames[$errorCode];
         } else {
             $name = '';
         }
