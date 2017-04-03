@@ -47,6 +47,8 @@ use PDO,
  * @method DeviceICloudRecord setPhotoDuration (string $value)
  * @method DeviceICloudRecord setProcessingStartTime (integer $value)
  * @method DeviceICloudRecord setLastCommited (integer $value)
+ * @method DeviceICloudRecord set2faEnabled (integer $value)
+ * @method DeviceICloudRecord setTokenGenerationTime (integer $value)
  *
  * @method integer getId ()
  * @method integer getDevId ()
@@ -139,6 +141,8 @@ class DeviceICloudRecord extends AbstractRecord
         'photoSync' => 'photo_sync',
         'photoDuration' => 'photo_duration',
         'processingStartTime' => 'processing_start_time',
+        '2faEnabled' => '2fa_enabled',
+        'tokenGenerationTime' => 'token_generation_time'
     );
     protected $recordProperties = array(
         'id' => null,
@@ -159,7 +163,9 @@ class DeviceICloudRecord extends AbstractRecord
         'lastPhoto' => '',
         'photoSync' => 0,
         'photoDuration' => 0,
-        'processingStartTime' => 0
+        'processingStartTime' => 0,
+        '2faEnabled' => 0,
+        'tokenGenerationTime' => 0
     );
 
     public function __isset($name)
