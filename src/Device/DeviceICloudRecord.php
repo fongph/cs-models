@@ -16,6 +16,9 @@ use PDO,
  * @property string $deviceHash
  * @property string $serialNumber
  * @property integer $processing
+ * @property integer $reincubateAccountId
+ * @property integer $reincubateDeviceId
+ * @property integer $reincubateEnabled
  * @property integer $lastError
  * @property integer $lastBackup
  * @property integer $lastSync
@@ -37,6 +40,9 @@ use PDO,
  * @method DeviceICloudRecord setDeviceHash (string $value)
  * @method DeviceICloudRecord setSerialNumber (string $value)
  * @method DeviceICloudRecord setProcessing (integer $value)
+ * @method DeviceICloudRecord setReincubateAccountId (integer $value)
+ * @method DeviceICloudRecord setReincubateDeviceId (integer $value)
+ * @method DeviceICloudRecord setReincubateEnabled (integer $value)
  * @method DeviceICloudRecord setLastError (integer $value)
  * @method DeviceICloudRecord setLastSync (integer $value)
  * @method DeviceICloudRecord setLastBackup (integer $value)
@@ -59,6 +65,9 @@ use PDO,
  * @method string getSerialNumber ()
  * @method string getDeviceHash ()
  * @method integer getProcessing ()
+ * @method integer getReincubateAccountId ()
+ * @method integer getReincubateDeviceId ()
+ * @method integer getReincubateEnabled ()
  * @method integer getLastError ()
  * @method integer getLastSync ()
  * @method integer getLastBackup ()
@@ -119,6 +128,9 @@ class DeviceICloudRecord extends AbstractRecord {
         'deviceHash' => 'device_hash',
         'serialNumber' => 'serial_number',
         'processing' => 'processing',
+        'reincubateAccountId' => 'reincubate_account_id',
+        'reincubateDeviceId' => 'reincubate_device_id',
+        'reincubateEnabled' => 'reincubate_enabled',
         'quotaUsed' => 'quota_used',
         'lastError' => 'last_error',
         'lastBackup' => 'last_backup',
@@ -216,6 +228,9 @@ class DeviceICloudRecord extends AbstractRecord {
                 `device_hash` = {$this->db->quote($this->deviceHash)},
                 `serial_number` = {$this->db->quote($this->serialNumber)},
                 `processing` = {$this->processing},
+                `reincubate_account_id` = {$this->reincubateAccountId},
+                `reincubate_device_id` = {$this->reincubateDeviceId},
+                `reincubate_enabled` = {$this->reincubateEnabled},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
                 `last_backup` = {$this->lastBackup},
@@ -245,6 +260,9 @@ class DeviceICloudRecord extends AbstractRecord {
                 `device_hash` = {$this->db->quote($this->deviceHash)},
                 `serial_number` = {$this->db->quote($this->serialNumber)},
                 `processing` = {$this->processing},
+                `reincubate_account_id` = {$this->reincubateAccountId},
+                `reincubate_device_id` = {$this->reincubateDeviceId},
+                `reincubate_enabled` = {$this->reincubateEnabled},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
                 `last_backup` = {$this->lastBackup},
