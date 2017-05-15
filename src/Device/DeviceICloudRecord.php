@@ -221,6 +221,9 @@ class DeviceICloudRecord extends AbstractRecord {
 
     private function updateRecord()
     {
+        $reincubateAccountId = $this->escape($this->reincubateAccountId, 'NULL');
+        $reincubateDeviceId = $this->escape($this->reincubateDeviceId, 'NULL');
+        
         return (bool) $this->db->exec("
             UPDATE `devices_icloud` 
             SET `dev_id` = {$this->devId},
@@ -229,8 +232,8 @@ class DeviceICloudRecord extends AbstractRecord {
                 `device_hash` = {$this->db->quote($this->deviceHash)},
                 `serial_number` = {$this->db->quote($this->serialNumber)},
                 `processing` = {$this->processing},
-                `reincubate_account_id` = {$this->reincubateAccountId},
-                `reincubate_device_id` = {$this->reincubateDeviceId},
+                `reincubate_account_id` = {$reincubateAccountId},
+                `reincubate_device_id` = {$reincubateDeviceId},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
                 `last_backup` = {$this->lastBackup},
@@ -252,6 +255,9 @@ class DeviceICloudRecord extends AbstractRecord {
 
     private function insertRecord()
     {
+        $reincubateAccountId = $this->escape($this->reincubateAccountId, 'NULL');
+        $reincubateDeviceId = $this->escape($this->reincubateDeviceId, 'NULL');
+        
         $this->db->exec("
             INSERT INTO `devices_icloud` 
             SET `dev_id` = {$this->devId},
@@ -260,8 +266,8 @@ class DeviceICloudRecord extends AbstractRecord {
                 `device_hash` = {$this->db->quote($this->deviceHash)},
                 `serial_number` = {$this->db->quote($this->serialNumber)},
                 `processing` = {$this->processing},
-                `reincubate_account_id` = {$this->reincubateAccountId},
-                `reincubate_device_id` = {$this->reincubateDeviceId},
+                `reincubate_account_id` = {$reincubateAccountId},
+                `reincubate_device_id` = {$reincubateDeviceId},
                 `quota_used` = {$this->quotaUsed},
                 `last_error` = {$this->lastError},
                 `last_backup` = {$this->lastBackup},
