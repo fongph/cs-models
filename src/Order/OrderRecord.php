@@ -94,6 +94,7 @@ class OrderRecord extends AbstractRecord
 
     const PAYMENT_METHOD_BLUESNAP = 'bluesnap';
     const PAYMENT_METHOD_FASTSPRING = 'fastspring';
+    const PAYMENT_METHOD_FASTSPRING_CONTEXTUAL = 'fastspring-contextual';
     const PAYMENT_METHOD_INTERNAL = 'internal';
 
     const SELLER_NONE = 'none';
