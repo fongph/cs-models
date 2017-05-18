@@ -246,7 +246,9 @@ class ProductRecord extends AbstractRecord
         if (!in_array($paymentMethod, OrderRecord::getAllowedPaymentMethods())) {
             throw new InvalidPaymentMethodException("Invalid payment method value");
         }
-
+        if ($paymentMethod == 'fastspring-contextual'){
+            $paymentMethod = 'fastspring';
+        }
         return 'code_' . $paymentMethod;
     }
 
