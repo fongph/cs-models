@@ -85,7 +85,7 @@ class OrderRecord extends AbstractRecord
      *
      * @var array
      */
-    protected static $allowedPaymentMethods = array(self::PAYMENT_METHOD_BLUESNAP, self::PAYMENT_METHOD_FASTSPRING, self::PAYMENT_METHOD_INTERNAL);
+    protected static $allowedPaymentMethods = array(self::PAYMENT_METHOD_BLUESNAP, self::PAYMENT_METHOD_FASTSPRING, self::PAYMENT_METHOD_INTERNAL, self::PAYMENT_METHOD_FASTSPRING_CONTEXTUAL);
 
     const STATUS_CREATED = 'created';
     const STATUS_PENDING = 'pending';
