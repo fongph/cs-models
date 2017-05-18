@@ -235,6 +235,9 @@ class ProductRecord extends AbstractRecord
 
     public function getReferenceCode($paymentMethod)
     {
+        if ($paymentMethod == 'fastspring-contextual'){
+            $paymentMethod = 'fastspring';
+        }
         return $this->{'code' . ucfirst($paymentMethod)};
     }
 
